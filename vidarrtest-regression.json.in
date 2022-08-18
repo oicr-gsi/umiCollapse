@@ -6,6 +6,7 @@
             "umiCollapse.bamMerge.memory": null,
             "umiCollapse.bamMerge.modules": "samtools/1.9",
             "umiCollapse.bamMerge.timeout": null,
+            "umiCollapse.statsMerge.memory": null,
             "umiCollapse.bamSplitDeduplication.memory": null,
             "umiCollapse.bamSplitDeduplication.modules": "umi-tools/1.0.0 samtools/1.9",
             "umiCollapse.bamSplitDeduplication.timeout": null,
