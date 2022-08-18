@@ -1,0 +1,127 @@
+[            
+    {   
+        "id": "umiCollapse_dataset1",
+        "description": "umiCollapse workflow test", 
+        "arguments": {
+            "umiCollapse.bamMerge.memory": null,
+            "umiCollapse.bamMerge.modules": "samtools/1.9",
+            "umiCollapse.bamMerge.timeout": null,
+            "umiCollapse.bamSplitDeduplication.memory": null,
+            "umiCollapse.bamSplitDeduplication.modules": "umi-tools/1.0.0 samtools/1.9",
+            "umiCollapse.bamSplitDeduplication.timeout": null,
+            "umiCollapse.bwaMem.adapter1": null,
+            "umiCollapse.bwaMem.adapter2": null,
+            "umiCollapse.bwaMem.adapterTrimmingLog_jobMemory": null,
+            "umiCollapse.bwaMem.adapterTrimmingLog_timeout": null,
+            "umiCollapse.bwaMem.adapterTrimming_addParam": null,
+            "umiCollapse.bwaMem.adapterTrimming_jobMemory": null,
+            "umiCollapse.bwaMem.adapterTrimming_modules": "cutadapt/1.8.3",
+            "umiCollapse.bwaMem.adapterTrimming_timeout": null,
+            "umiCollapse.bwaMem.bamMerge_jobMemory": null,
+            "umiCollapse.bwaMem.bamMerge_modules": "samtools/1.9",
+            "umiCollapse.bwaMem.bamMerge_timeout": null,
+            "umiCollapse.bwaMem.countChunkSize_jobMemory": null,
+            "umiCollapse.bwaMem.countChunkSize_timeout": null,
+            "umiCollapse.bwaMem.doTrim": null,
+            "umiCollapse.bwaMem.indexBam_jobMemory": null,
+            "umiCollapse.bwaMem.indexBam_modules": "samtools/1.9",
+            "umiCollapse.bwaMem.indexBam_timeout": null,
+            "umiCollapse.bwaMem.numChunk": null,
+            "umiCollapse.bwaMem.readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'",
+            "umiCollapse.bwaMem.runBwaMem_addParam": null,
+            "umiCollapse.bwaMem.runBwaMem_bwaRef": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
+            "umiCollapse.bwaMem.runBwaMem_jobMemory": null,
+            "umiCollapse.bwaMem.runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg19-bwa-index/0.7.12",
+            "umiCollapse.bwaMem.runBwaMem_threads": null,
+            "umiCollapse.bwaMem.runBwaMem_timeout": null,
+            "umiCollapse.bwaMem.slicerR1_jobMemory": null,
+            "umiCollapse.bwaMem.slicerR1_modules": null,
+            "umiCollapse.bwaMem.slicerR1_timeout": null,
+            "umiCollapse.bwaMem.slicerR2_jobMemory": null,
+            "umiCollapse.bwaMem.slicerR2_modules": null,
+            "umiCollapse.bwaMem.slicerR2_timeout": null,
+            "umiCollapse.bwaMem.trimMinLength": null,
+            "umiCollapse.bwaMem.trimMinQuality": null,
+            "umiCollapse.extractUMIs.memory": null,
+            "umiCollapse.extractUMIs.modules": "barcodex-rs/0.1.2 rust/1.45.1",
+            "umiCollapse.extractUMIs.timeout": null,
+            "umiCollapse.mergeUMIs.memory": null,
+            "umiCollapse.fastq1": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/r1.fastq",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "umiCollapse.fastq2": {
+                "contents": {
+                    "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/r2.fastq",
+                    "externalIds": [
+                        {
+                            "id": "TEST",
+                            "provider": "TEST"
+                        }
+                    ]
+                },
+                "type": "EXTERNAL"
+            },
+            "umiCollapse.outputPrefix": null,
+            "umiCollapse.pattern1": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
+            "umiCollapse.pattern2": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
+            "umiCollapse.umiList": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/IDT_true_barcodes.txt"
+        },
+        "engineArguments": {
+            "write_to_cache": false,
+            "read_from_cache": false
+        },
+        "metadata": {
+            "umiCollapse.deduplicatedBam": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "umiCollapse.statsEditDistance": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "umiCollapse.umiCountsPerPosition": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "umiCollapse.umiCounts": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            }
+        },
+        "validators": [
+            {
+                "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
+                "metrics_compare": "@CHECKOUT@/tests/compare.sh",
+                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.2/umiCollapse_dataset1.metrics",
+                "type": "script"
+            }
+        ]
+    }
+]
+
+
