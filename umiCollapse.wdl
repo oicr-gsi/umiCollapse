@@ -2,7 +2,7 @@ version 1.0
 
 import "imports/pull_bwaMem.wdl" as bwaMem
 
-workflow umiCollaps {
+workflow umiCollapse {
     input {
         String umiList
         String outputPrefix = "output"
@@ -102,9 +102,9 @@ workflow umiCollaps {
 
     call statsMerge {
         input:
-            statsEditDistance = bamSplitDeduplication.statsEditDistance,
-            umiCountsPerPosition = bamSplitDeduplication.umiCountsPerPosition,
-            umiCounts = bamSplitDeduplication.umiCounts
+            statsEditDistances = bamSplitDeduplication.dedupEditDistance,
+            umiCountsPerPositions = bamSplitDeduplication.dedupUmiCountsPerPosition,
+            umiCountsArray = bamSplitDeduplication.dedupUmiCounts
 
     }
 
@@ -270,17 +270,17 @@ task bamSplitDeduplication {
 
     output {
         File umiDedupBams = "deduplicated.bam"
-        File statsEditDistance = "deduplicated_edit_distance.tsv"
-        File umiCountsPerPosition = "deduplicated_per_umi_per_position.tsv"
-        File umiCounts = "deduplicated_per_umi.tsv"
+        File dedupEditDistance = "deduplicated_edit_distance.tsv"
+        File dedupUmiCountsPerPosition = "deduplicated_per_umi_per_position.tsv"
+        File dedupUmiCounts = "deduplicated_per_umi.tsv"
     }
 
     meta {
         output_meta: {
             umiDedupBams: "Bam files after deduplication",
-            statsEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
-            umiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
-            umiCounts: "tsv file provides UMI-level summary statistics"
+            dedupEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
+            dedupUmiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
+            dedupUmiCounts: "tsv file provides UMI-level summary statistics"
         }
     }
 }
@@ -319,36 +319,30 @@ task bamMerge {
         File mergedBam = "~{resultMergedBam}"
     }
 
-    meta {
-        output_meta: {
-            mergedBam: "merged deduplicated bam file"
-        }
-    }
-
 }
 
 task statsMerge {
     input{
-        Array[File] statsEditDistance
-        Array[File] umiCountsPerPosition
-        Array[File] umiCounts
+        Array[File] statsEditDistances
+        Array[File] umiCountsPerPositions
+        Array[File] umiCountsArray
         Int memory = 16
     }
 
     parameter_meta {
-        statsEditDistance: "An array of TSV files with stats_edit_distance"
-        umiCountsPerPosition: "An array of TSV files with umiCountsPerPosition"
-        umiCounts: "An array of TSV files with umiCounts"
+        statsEditDistances: "An array of TSV files with stats_edit_distance"
+        umiCountsPerPositions: "An array of TSV files with umiCountsPerPosition"
+        umiCountsArray: "An array of TSV files with umiCounts"
         memory: "Memory allocated for this job"
     }
 
     command <<<
         set -euo pipefail
-        statsEditDistance=(~{sep=" " statsEditDistance})
-        umiCountsPerPosition=(~{sep=" " umiCountsPerPosition})
-        umiCounts=(~{sep=" " umiCounts})
+        statsEditDistances=(~{sep=" " statsEditDistances})
+        umiCountsPerPositions=(~{sep=" " umiCountsPerPositions})
+        umiCountsArray=(~{sep=" " umiCountsArray})
 
-        length=${#statsEditDistance[@]}
+        length=${#statsEditDistances[@]}
         touch stats.tsv
         i=0
         while [ $i -lt $length ]
@@ -357,13 +351,13 @@ task statsMerge {
             awk  'BEGIN {OFS='\t'} \
             {s1[$5]+=$1; s2[$5]+=$2; s3[$5]+=$3; s4[$5]+=$4} \
             END {for (k in s1) print s1[k]"\t"s2[k]"\t"s3[k]"\t"s4[k]"\t"k}' \
-            tmp.tsv <(tail -n +2 ${statsEditDistance[i]}) > stats.tsv
+            tmp.tsv <(tail -n +2 ${statsEditDistances[i]}) > stats.tsv
             i=$(( $i+1 )) 
         done
         sort -k5 -o stats.tsv stats.tsv
-        cat <(head -n 1 ${statsEditDistance[0]}) stats.tsv > statsEditDistance.tsv
+        cat <(head -n 1 ${statsEditDistances[0]}) stats.tsv > statsEditDistance.tsv
 
-        length=${#umiCountsPerPosition[@]}
+        length=${#umiCountsPerPositions[@]}
         touch umi.tsv
         i=0
         while [ $i -lt $length ]
@@ -371,18 +365,18 @@ task statsMerge {
             cat umi.tsv > tmp.tsv
             awk  '{s2[$1]+=$2; s3[$1]+=$3} \
             END {for (k in s2) print k"\t"s2[k]"\t"s3[k]}' \
-            tmp.tsv <(tail -n +2 ${umiCountsPerPosition[i]}) > umi.tsv
+            tmp.tsv <(tail -n +2 ${umiCountsPerPositions[i]}) > umi.tsv
             i=$(( $i+1 ))
         done
-        cat <(head -n 1 ${umiCountsPerPosition[0]}) umi.tsv > umiCountsPerPosition.tsv
+        cat <(head -n 1 ${umiCountsPerPositions[0]}) umi.tsv > umiCountsPerPosition.tsv
 
-        length=${#umiCounts[@]}
-        head -n 1 ${umiCounts[0]} > umiCounts.tsv
+        length=${#umiCountsArray[@]}
+        head -n 1 ${umiCountsArray[0]} > umiCounts.tsv
         i=0
         while [ $i -lt $length ]
         do
             cat umiCounts.tsv > tmp.tsv
-            cat tmp.tsv <(tail -n +2 ${umiCounts[i]}) > umiCounts.tsv
+            cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > umiCounts.tsv
             i=$(( $i+1 ))
         done
     >>>
@@ -397,11 +391,4 @@ task statsMerge {
         File umiCounts= "umiCounts.tsv"
     }
 
-    meta {
-        output_meta: {
-            statsEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
-            umiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
-            umiCounts: "tsv file provides UMI-level summary statistics"
-        }
-    }
 }
