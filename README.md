@@ -81,6 +81,8 @@ Parameter|Value|Default|Description
 `bamSplitDeduplication.modules`|String|"umi-tools/1.0.0 samtools/1.9"|Required environment modules
 `bamSplitDeduplication.memory`|Int|24|Memory allocated for this job
 `bamSplitDeduplication.timeout`|Int|6|Time in hours before task timeout
+`bamSplitDeduplication.method`|String|"directional"|What method to use to identify group of reads with the same (or similar) UMI(s)?
+`bamSplitDeduplication.editDistanceThreshold`|Int|1|Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network.
 `bamMerge.modules`|String|"samtools/1.9"|Required environment modules
 `bamMerge.memory`|Int|24|Memory allocated for indexing job
 `bamMerge.timeout`|Int|6|Hours before task timeout
