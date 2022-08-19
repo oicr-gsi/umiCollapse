@@ -235,6 +235,8 @@ task bamSplitDeduplication {
         String outputPrefix
         Int memory = 24
         Int timeout = 6
+        String method = "directional"
+        Int editDistanceThreshold = 1
     }
 
     parameter_meta {
@@ -244,6 +246,8 @@ task bamSplitDeduplication {
         modules: "Required environment modules"
         memory: "Memory allocated for this job"
         timeout: "Time in hours before task timeout"
+        method: "What method to use to identify group of reads with the same (or similar) UMI(s)?"
+        editDistanceThreshold: "Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network."
     }
 
     command <<<
@@ -259,7 +263,9 @@ task bamSplitDeduplication {
         -S deduplicated.bam \
         --output-stats=deduplicated \
         --log=deduplicated.log \
-        --paired 
+        --paired \
+        --method=~{method} \
+        --edit-distance-threshold=~{editDistanceThreshold}
     >>>
 
     runtime {

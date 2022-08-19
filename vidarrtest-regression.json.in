@@ -10,6 +10,8 @@
             "umiCollapse.bamSplitDeduplication.memory": null,
             "umiCollapse.bamSplitDeduplication.modules": "umi-tools/1.0.0 samtools/1.9",
             "umiCollapse.bamSplitDeduplication.timeout": null,
+	    "umiCollapse.bamSplitDeduplication.method": null,
+	    "umiCollapse.bamSplitDeduplication.editDistanceThreshold": null,
             "umiCollapse.bwaMem.adapter1": null,
             "umiCollapse.bwaMem.adapter2": null,
             "umiCollapse.bwaMem.adapterTrimmingLog_jobMemory": null,
