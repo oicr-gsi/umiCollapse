@@ -104,7 +104,8 @@ workflow umiCollapse {
         input:
             statsEditDistances = bamSplitDeduplication.dedupEditDistance,
             umiCountsPerPositions = bamSplitDeduplication.dedupUmiCountsPerPosition,
-            umiCountsArray = bamSplitDeduplication.dedupUmiCounts
+            umiCountsArray = bamSplitDeduplication.dedupUmiCounts,
+            outputPrefix = outputPrefix
 
     }
 
@@ -333,6 +334,7 @@ task statsMerge {
         Array[File] umiCountsPerPositions
         Array[File] umiCountsArray
         Int memory = 16
+        String outputPrefix
     }
 
     parameter_meta {
@@ -361,7 +363,7 @@ task statsMerge {
             i=$(( $i+1 )) 
         done
         sort -k5 -o stats.tsv stats.tsv
-        cat <(head -n 1 ${statsEditDistances[0]}) stats.tsv > statsEditDistance.tsv
+        cat <(head -n 1 ${statsEditDistances[0]}) stats.tsv > ~{outputPrefix}.statsEditDistance.tsv
 
         length=${#umiCountsPerPositions[@]}
         touch umi.tsv
@@ -374,7 +376,7 @@ task statsMerge {
             tmp.tsv <(tail -n +2 ${umiCountsPerPositions[i]}) > umi.tsv
             i=$(( $i+1 ))
         done
-        cat <(head -n 1 ${umiCountsPerPositions[0]}) umi.tsv > umiCountsPerPosition.tsv
+        cat <(head -n 1 ${umiCountsPerPositions[0]}) umi.tsv > ~{outputPrefix}.umiCountsPerPosition.tsv
 
         length=${#umiCountsArray[@]}
         head -n 1 ${umiCountsArray[0]} > umiCounts.tsv
@@ -382,7 +384,7 @@ task statsMerge {
         while [ $i -lt $length ]
         do
             cat umiCounts.tsv > tmp.tsv
-            cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > umiCounts.tsv
+            cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > ~{outputPrefix}.umiCounts.tsv
             i=$(( $i+1 ))
         done
     >>>
@@ -392,9 +394,9 @@ task statsMerge {
     }
 
     output {
-        File statsEditDistance = "statsEditDistance.tsv"
-        File umiCountsPerPosition = "umiCountsPerPosition.tsv"
-        File umiCounts= "umiCounts.tsv"
+        File statsEditDistance = "~{outputPrefix}.statsEditDistance.tsv"
+        File umiCountsPerPosition = "~{outputPrefix}.umiCountsPerPosition.tsv"
+        File umiCounts= "~{outputPrefix}.umiCounts.tsv"
     }
 
 }

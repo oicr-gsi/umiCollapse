@@ -73,7 +73,7 @@
                 },
                 "type": "EXTERNAL"
             },
-            "umiCollapse.outputPrefix": null,
+            "umiCollapse.outputPrefix": "test1",
             "umiCollapse.pattern1": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.pattern2": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.umiList": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/IDT_true_barcodes.txt"
