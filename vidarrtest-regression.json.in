@@ -10,8 +10,8 @@
             "umiCollapse.bamSplitDeduplication.memory": null,
             "umiCollapse.bamSplitDeduplication.modules": "umi-tools/1.0.0 samtools/1.9",
             "umiCollapse.bamSplitDeduplication.timeout": null,
-	    "umiCollapse.bamSplitDeduplication.method": null,
-	    "umiCollapse.bamSplitDeduplication.editDistanceThreshold": null,
+            "umiCollapse.bamSplitDeduplication.method": null,
+            "umiCollapse.bamSplitDeduplication.editDistanceThreshold": null,
             "umiCollapse.bwaMem.adapter1": null,
             "umiCollapse.bwaMem.adapter2": null,
             "umiCollapse.bwaMem.adapterTrimmingLog_jobMemory": null,
@@ -32,9 +32,7 @@
             "umiCollapse.bwaMem.numChunk": null,
             "umiCollapse.bwaMem.readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'",
             "umiCollapse.bwaMem.runBwaMem_addParam": null,
-            "umiCollapse.bwaMem.runBwaMem_bwaRef": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
             "umiCollapse.bwaMem.runBwaMem_jobMemory": null,
-            "umiCollapse.bwaMem.runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg19-bwa-index/0.7.12",
             "umiCollapse.bwaMem.runBwaMem_threads": null,
             "umiCollapse.bwaMem.runBwaMem_timeout": null,
             "umiCollapse.bwaMem.slicerR1_jobMemory": null,
@@ -74,6 +72,7 @@
                 "type": "EXTERNAL"
             },
             "umiCollapse.outputPrefix": "test1",
+            "umiCollapse.reference": "hg19",
             "umiCollapse.pattern1": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.pattern2": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.umiList": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/IDT_true_barcodes.txt"

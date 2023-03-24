@@ -2,6 +2,11 @@ version 1.0
 
 import "imports/pull_bwaMem.wdl" as bwaMem
 
+struct GenomeResources {
+    String bwaMem_runBwaMem_bwaRef
+    String bwaMem_runBwaMem_modules
+}
+
 workflow umiCollapse {
     input {
         String umiList
@@ -10,6 +15,22 @@ workflow umiCollapse {
         File fastq2
         String pattern1 
         String pattern2
+        String reference
+    }
+
+    Map[String, GenomeResources] resources = {
+    "hg19": {
+        "bwaMem_runBwaMem_bwaRef": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg19-bwa-index/0.7.12"
+    },
+    "hg38": {
+        "bwaMem_runBwaMem_bwaRef": "$HG38_BWA_INDEX_ROOT/hg38_random.fa",
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg38-bwa-index/0.7.12"
+    },
+    "mm10": {
+        "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
+    },
     }
 
     parameter_meta {
@@ -19,6 +40,7 @@ workflow umiCollapse {
         fastq2: "Fastq file for read 2"
         pattern1: "UMI pattern 1"
         pattern2: "UMI pattern 2"
+        reference: "Name and version of reference genome"
     }
 
     meta {
@@ -82,7 +104,9 @@ workflow umiCollapse {
         input:
             fastqR1 = extractUMIs.fastqR1,
             fastqR2 = extractUMIs.fastqR2,
-            outputFileNamePrefix = outputPrefix
+            outputFileNamePrefix = outputPrefix,
+            runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
+            runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
     }
 
     scatter (umiLength in umiLengths) {

@@ -31,8 +31,7 @@ Parameter|Value|Description
 `fastq2`|File|Fastq file for read 2
 `pattern1`|String|UMI pattern 1
 `pattern2`|String|UMI pattern 2
-`bwaMem.runBwaMem_bwaRef`|String|The reference genome to align the sample with by BWA
-`bwaMem.runBwaMem_modules`|String|Required environment modules
+`reference`|String|Name and version of reference genome
 `bwaMem.readGroups`|String|Complete read group header line
 
 
@@ -100,13 +99,13 @@ Output | Type | Description
 
 
 ## Commands
- This section lists command(s) run by WORKFLOW workflow
+ This section lists command(s) run by UmiCollapse workflow
  
- * Running WORKFLOW
+ * Running UmiCollapse
  
- === Description here ===.
+
  
- <<<
+ ```
  
        k=($(awk '{ match($1, "([ACTG])+"); print RLENGTH }' ~{umiList} | uniq))
  
@@ -120,11 +119,11 @@ Output | Type | Description
            done
        done
  
-       umiLengths=($(tr ' ' '\n' <<< "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
+       umiLengths=($(tr ' ' '\n' ``` "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
        printf "%s\n" "${umiLengths[@]}"
  
-   >>>
- <<<
+```
+ ```
  
              barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
              --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
@@ -135,8 +134,8 @@ Output | Type | Description
              tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
              echo "{$(sort -i tmp.txt)}" > new.txt
              tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
-         >>>
- <<<
+```
+ ```
          samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
          samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
          samtools view $bamfile | grep -P "^.*__\S{~{7}\t" >> output.7.sam
@@ -150,12 +149,12 @@ Output | Type | Description
          --output-stats=deduplicated \
          --log=deduplicated.log \
          --paired 
-     >>>
- <<<        
+```
+ ```        
          set -euo pipefail
-         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " umiDedupBams}
-     >>>
- <<<
+        samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " umiDedupBams}
+```
+ ```
          set -euo pipefail
          statsEditDistances=(~{sep=" " statsEditDistances})
          umiCountsPerPositions=(~{sep=" " umiCountsPerPositions})
@@ -198,7 +197,7 @@ Output | Type | Description
              cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > umiCounts.tsv
              i=$(( $i+1 ))
          done
-     >>>
+```
  ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
