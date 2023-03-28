@@ -46,7 +46,7 @@ workflow umiCollapse {
     meta {
         author: "Gavin Peng"
         email: "gpeng@oicr.on.ca"
-        description: "Workflow for UMI dedupilcation"
+        description: "The incorporation of Unique Molecular Indices (UMIs) into sequenced reads allows for more accurate identification of PCR duplicates. This workflow extracts UMIs from the reads in fastq files, into the sequence identifier line. UMI identification is based on a known location and pattern and with the ability to match to a list of expected sequences. Reads are then aligned to a reference genome with bwa, and then the aligned sequence file is collapsed to remove duplicates with um-Tools"
         dependencies: [
             {
                 name: "barcodex-rs/0.1.2",
@@ -71,6 +71,22 @@ workflow umiCollapse {
             {
                 name: "python/3.6",
                 url: "https://www.python.org/downloads/"
+            },
+            { 
+                name: "gsi software modules : samtools/1.9 bwa/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi hg38 modules:  hg38-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi hg19 modules:  hg19-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi mm10 modules:  mm10-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
             }
 
         ]
