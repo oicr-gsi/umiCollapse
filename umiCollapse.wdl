@@ -2,6 +2,11 @@ version 1.0
 
 import "imports/pull_bwaMem.wdl" as bwaMem
 
+struct GenomeResources {
+    String bwaMem_runBwaMem_bwaRef
+    String bwaMem_runBwaMem_modules
+}
+
 workflow umiCollapse {
     input {
         String umiList
@@ -10,6 +15,22 @@ workflow umiCollapse {
         File fastq2
         String pattern1 
         String pattern2
+        String reference
+    }
+
+    Map[String, GenomeResources] resources = {
+    "hg19": {
+        "bwaMem_runBwaMem_bwaRef": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg19-bwa-index/0.7.12"
+    },
+    "hg38": {
+        "bwaMem_runBwaMem_bwaRef": "$HG38_BWA_INDEX_ROOT/hg38_random.fa",
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg38-bwa-index/0.7.12"
+    },
+    "mm10": {
+        "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
+        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
+    },
     }
 
     parameter_meta {
@@ -19,12 +40,13 @@ workflow umiCollapse {
         fastq2: "Fastq file for read 2"
         pattern1: "UMI pattern 1"
         pattern2: "UMI pattern 2"
+        reference: "Name and version of reference genome"
     }
 
     meta {
         author: "Gavin Peng"
         email: "gpeng@oicr.on.ca"
-        description: "Workflow for UMI dedupilcation"
+        description: "The incorporation of Unique Molecular Indices (UMIs) into sequenced reads allows for more accurate identification of PCR duplicates. This workflow extracts UMIs from the reads in fastq files, into the sequence identifier line. UMI identification is based on a known location and pattern and with the ability to match to a list of expected sequences. Reads are then aligned to a reference genome with bwa, and then the aligned sequence file is collapsed to remove duplicates with um-Tools"
         dependencies: [
             {
                 name: "barcodex-rs/0.1.2",
@@ -49,6 +71,22 @@ workflow umiCollapse {
             {
                 name: "python/3.6",
                 url: "https://www.python.org/downloads/"
+            },
+            { 
+                name: "gsi software modules : samtools/1.9 bwa/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi hg38 modules:  hg38-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi hg19 modules:  hg19-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {   
+                name: "gsi mm10 modules:  mm10-bwa-index/0.7.12",
+                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
             }
 
         ]
@@ -82,7 +120,9 @@ workflow umiCollapse {
         input:
             fastqR1 = extractUMIs.fastqR1,
             fastqR2 = extractUMIs.fastqR2,
-            outputFileNamePrefix = outputPrefix
+            outputFileNamePrefix = outputPrefix,
+            runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
+            runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
     }
 
     scatter (umiLength in umiLengths) {
