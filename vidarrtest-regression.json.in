@@ -46,6 +46,9 @@
             "umiCollapse.extractUMIs.modules": "barcodex-rs/0.1.2 rust/1.45.1",
             "umiCollapse.extractUMIs.timeout": null,
             "umiCollapse.mergeUMIs.memory": null,
+            "umiCollapse.mergeLibrary.modules": null,
+            "umiCollapse.mergeLibrary.timeout": null,
+            "umiCollapse.mergeLibrary.memory": null,
             "umiCollapse.fastqInputs": [
                 {
                     "fastq1": {
