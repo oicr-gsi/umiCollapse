@@ -7,12 +7,17 @@ struct GenomeResources {
     String bwaMem_runBwaMem_modules
 }
 
+struct FastqInputs {
+    File fastq1
+    File fastq2
+    String readGroups
+}
+
 workflow umiCollapse {
     input {
         String umiList
         String outputPrefix = "output"
-        File fastq1
-        File fastq2
+        Array[FastqInputs] fastqInputs
         String pattern1 
         String pattern2
         String reference
@@ -36,8 +41,7 @@ workflow umiCollapse {
     parameter_meta {
         umiList: "Reference file with valid UMIs"
         outputPrefix: "Specifies the prefix of output files"
-        fastq1: "Fastq file for read 1"
-        fastq2: "Fastq file for read 2"
+        fastqInputs: "Array of fastq structs containing reads and readgroups"
         pattern1: "UMI pattern 1"
         pattern2: "UMI pattern 2"
         reference: "Name and version of reference genome"
@@ -104,31 +108,41 @@ workflow umiCollapse {
           umiList = umiList    
 
     }
+
     Array[Int] umiLengths = getUMILengths.umiLengths
-    
-    call extractUMIs { 
-        input:
-            umiList = umiList,
-            outputPrefix = outputPrefix,
-            fastq1 = fastq1,
-            fastq2 = fastq2,
-            pattern1 = pattern1,
-            pattern2 = pattern2
+    #Array[FastqInputs] fastqInputs_ = select_first([fastqInputs])
+
+    scatter (fq in fastqInputs) {
+        call extractUMIs { 
+            input:
+                umiList = umiList,
+                outputPrefix = outputPrefix,
+                fastq1 = fq.fastq1,
+                fastq2 = fq.fastq2,
+                pattern1 = pattern1,
+                pattern2 = pattern2
+            }
+            call bwaMem.bwaMem {
+                input:
+                    fastqR1 = extractUMIs.fastqR1,
+                    fastqR2 = extractUMIs.fastqR2,
+                    readGroups = fq.readGroups,
+                    outputFileNamePrefix = outputPrefix,
+                    runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
+                    runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
+            }
     }
 
-    call bwaMem.bwaMem {
+    call bamMerge as mergeLibrary {
         input:
-            fastqR1 = extractUMIs.fastqR1,
-            fastqR2 = extractUMIs.fastqR2,
-            outputFileNamePrefix = outputPrefix,
-            runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
-            runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
+            outputPrefix = outputPrefix,
+            Bams = bwaMem.bwaMemBam
     }
 
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
-                bamFile = bwaMem.bwaMemBam,
+                bamFile = mergeLibrary.mergedBam,
                 umiLength = umiLength,
                 outputPrefix = outputPrefix
         }
@@ -137,7 +151,7 @@ workflow umiCollapse {
     call bamMerge {
         input:
             outputPrefix = outputPrefix,
-            umiDedupBams = bamSplitDeduplication.umiDedupBams
+            Bams = bamSplitDeduplication.umiDedupBams
     }
 
     call statsMerge {
@@ -334,7 +348,7 @@ task bamSplitDeduplication {
 
 task bamMerge {
     input {
-        Array[File] umiDedupBams
+        Array[File] Bams
         String modules = "samtools/1.9"
         Int memory = 24
         Int timeout = 6
@@ -342,7 +356,7 @@ task bamMerge {
     }
 
     parameter_meta {
-        umiDedupBams: "Input bam files"
+        Bams: "Input bam files"
         outputPrefix: "Prefix for output file"
         memory: "Memory allocated for indexing job"
         modules: "Required environment modules"
@@ -353,7 +367,7 @@ task bamMerge {
 
     command <<<        
         set -euo pipefail
-        samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " umiDedupBams}
+        samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
     >>>
 
     runtime {

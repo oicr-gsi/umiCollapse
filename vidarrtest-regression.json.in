@@ -1,6 +1,6 @@
 [            
     {   
-        "id": "umiCollapse_dataset1",
+        "id": "umiCollapse_dataset2",
         "description": "umiCollapse workflow test", 
         "arguments": {
             "umiCollapse.bamMerge.memory": null,
@@ -30,7 +30,6 @@
             "umiCollapse.bwaMem.indexBam_modules": "samtools/1.9",
             "umiCollapse.bwaMem.indexBam_timeout": null,
             "umiCollapse.bwaMem.numChunk": null,
-            "umiCollapse.bwaMem.readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'",
             "umiCollapse.bwaMem.runBwaMem_addParam": null,
             "umiCollapse.bwaMem.runBwaMem_jobMemory": null,
             "umiCollapse.bwaMem.runBwaMem_threads": null,
@@ -47,31 +46,93 @@
             "umiCollapse.extractUMIs.modules": "barcodex-rs/0.1.2 rust/1.45.1",
             "umiCollapse.extractUMIs.timeout": null,
             "umiCollapse.mergeUMIs.memory": null,
-            "umiCollapse.fastq1": {
-                "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/r1.fastq",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
+            "umiCollapse.mergeLibrary.modules": null,
+            "umiCollapse.mergeLibrary.timeout": null,
+            "umiCollapse.mergeLibrary.memory": null,
+            "umiCollapse.fastqInputs": [
+                {
+                    "fastq1": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/452a/31bd/8bef/452a31bd8bef5ff9010c8c3540b94d49049b5fe71271ed7295d19fd275195ac2/BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT_R1.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "fastq2": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/452a/31bd/8bef/452a31bd8bef5ff9010c8c3540b94d49049b5fe71271ed7295d19fd275195ac2/BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT_R2.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
                 },
-                "type": "EXTERNAL"
-            },
-            "umiCollapse.fastq2": {
-                "contents": {
-                    "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/r2.fastq",
-                    "externalIds": [
-                        {
-                            "id": "TEST",
-                            "provider": "TEST"
-                        }
-                    ]
+                {
+                    "fastq1": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/0d54/2053/5bfc/0d5420535bfcfdcb36bc1bf2828a3a235721f21af60aa2b3c82a98ce635f2876/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "fastq2": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/0d54/2053/5bfc/0d5420535bfcfdcb36bc1bf2828a3a235721f21af60aa2b3c82a98ce635f2876/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
                 },
-                "type": "EXTERNAL"
-            },
-            "umiCollapse.outputPrefix": "test1",
+                {
+                    "fastq1": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/ba23/f50e/a436/ba23f50ea436d580cca39700207f2eefb055af58baf102a8ad6a959edf233fa3/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "fastq2": {
+                        "contents": {
+                            "configuration": "/.mounts/labs/prod/vidarr/output-research/ba23/f50e/a436/ba23f50ea436d580cca39700207f2eefb055af58baf102a8ad6a959edf233fa3/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "externalIds": [
+                                {
+                                    "id": "TEST",
+                                    "provider": "TEST"
+                                }
+                            ]
+                        },
+                        "type": "EXTERNAL"
+                    },
+                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
+                }
+            ],
+            "umiCollapse.outputPrefix": "test2",
             "umiCollapse.reference": "hg19",
             "umiCollapse.pattern1": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.pattern2": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
@@ -85,7 +146,7 @@
             "umiCollapse.deduplicatedBam": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -93,7 +154,7 @@
             "umiCollapse.statsEditDistance": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -101,7 +162,7 @@
             "umiCollapse.umiCountsPerPosition": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -109,7 +170,7 @@
             "umiCollapse.umiCounts": {
                 "contents": [
                     {
-                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset1_@JENKINSID@"
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
                     }
                 ],
                 "type": "ALL"
@@ -119,7 +180,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.2/umiCollapse_dataset1.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.4/umiCollapse_dataset2.metrics",
                 "type": "script"
             }
         ]

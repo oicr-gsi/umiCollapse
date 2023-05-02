@@ -31,12 +31,10 @@ java -jar cromwell.jar run umiCollapse.wdl --inputs inputs.json
 Parameter|Value|Description
 ---|---|---
 `umiList`|String|Reference file with valid UMIs
-`fastq1`|File|Fastq file for read 1
-`fastq2`|File|Fastq file for read 2
+`fastqInputs`|Array[FastqInputs]|Array of fastq structs containing reads and readgroups
 `pattern1`|String|UMI pattern 1
 `pattern2`|String|UMI pattern 2
 `reference`|String|Name and version of reference genome
-`bwaMem.readGroups`|String|Complete read group header line
 
 
 #### Optional workflow parameters:
@@ -81,6 +79,9 @@ Parameter|Value|Default|Description
 `bwaMem.trimMinQuality`|Int|0|minimum quality of read ends to keep [0]
 `bwaMem.adapter1`|String|"AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"|adapter sequence to trim from read 1 [AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC]
 `bwaMem.adapter2`|String|"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"|adapter sequence to trim from read 2 [AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT]
+`mergeLibrary.modules`|String|"samtools/1.9"|Required environment modules
+`mergeLibrary.memory`|Int|24|Memory allocated for indexing job
+`mergeLibrary.timeout`|Int|6|Hours before task timeout
 `bamSplitDeduplication.modules`|String|"umi-tools/1.0.0 samtools/1.9"|Required environment modules
 `bamSplitDeduplication.memory`|Int|24|Memory allocated for this job
 `bamSplitDeduplication.timeout`|Int|6|Time in hours before task timeout
@@ -103,40 +104,38 @@ Output | Type | Description
 
 
 ## Commands
-  This section lists command(s) run by UmiCollapse workflow
+   This section lists command(s) run by UmiCollapse workflow
+   
+   * Running UmiCollapse
+   
   
-  * Running UmiCollapse
-  
- 
+   ```
+   
+               barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
+               --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
+               --pattern2 '~{pattern2}' --r2-in ~{fastq2} 
+   
+               cat ~{outputPrefix}_UMI_counts.json > umiCounts.txt
+   
+               tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
+               echo "{$(sort -i tmp.txt)}" > new.txt
+               tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
   ```
-  
-              barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
-              --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
-              --pattern2 '~{pattern2}' --r2-in ~{fastq2} 
-  
-              cat ~{outputPrefix}_UMI_counts.json > umiCounts.txt
-  
-              tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
-              echo "{$(sort -i tmp.txt)}" > new.txt
-              tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
- ```
+   ```
+           samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
+           samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
+           samtools view $bamfile | grep -P "^.*__\S{~{7}\t" >> output.7.sam
+           samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
+   
+           samtools index ~{outputPrefix}.~{umiLength}.bam
+   
+           umi_tools dedup \
+           -I ~{outputPrefix}.~{umiLength}.bam \
+           -S deduplicated.bam \
+           --output-stats=deduplicated \
+           --log=deduplicated.log \
+           --paired 
   ```
-          samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
-          samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
-          samtools view $bamfile | grep -P "^.*__\S{~{7}\t" >> output.7.sam
-          samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
-  
-          samtools index ~{outputPrefix}.~{umiLength}.bam
-  
-          umi_tools dedup \
-          -I ~{outputPrefix}.~{umiLength}.bam \
-          -S deduplicated.bam \
-          --output-stats=deduplicated \
-          --log=deduplicated.log \
-          --paired 
- ```
-
-
  ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
