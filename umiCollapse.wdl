@@ -1,6 +1,7 @@
 version 1.0
 
 import "imports/pull_bwaMem.wdl" as bwaMem
+import "imports/pull_bamQC.wdl" as bamQC
 
 struct GenomeResources {
     String bwaMem_runBwaMem_bwaRef
@@ -21,6 +22,8 @@ workflow umiCollapse {
         String pattern1 
         String pattern2
         String reference
+        Boolean doBamQC = false
+        Boolean provisionBam = true
     }
 
     Map[String, GenomeResources] resources = {
@@ -45,6 +48,8 @@ workflow umiCollapse {
         pattern1: "UMI pattern 1"
         pattern2: "UMI pattern 2"
         reference: "Name and version of reference genome"
+        doBamQC: "Enable/disable bamQC process"
+        provisionBam: "Enable/disable provision out umi deduplicated bam file"
     }
 
     meta {
@@ -98,10 +103,20 @@ workflow umiCollapse {
             deduplicatedBam: "Bam file after deduplication",
             statsEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
             umiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
-            umiCounts: "tsv file provides UMI-level summary statistics"
-
+            umiCounts: "tsv file provides UMI-level summary statistics",
+            preDedupBamMetrics: "pre-collapse bamqc metrics",
+            postDedupBamMetrics: "post-collapse bamqc metrics"
         }
     }
+
+    output {
+        File? deduplicatedBam = umiDedupBam
+        File statsEditDistance = statsMerge.statsEditDistance
+        File umiCountsPerPosition = statsMerge.umiCountsPerPosition
+        File umiCounts = statsMerge.umiCounts
+        File? preDedupBamMetrics = preDedupBamQC.result
+        File? postDedupBamMetrics = postDedupBamQC.result
+    } 
 
     call getUMILengths {
       input:
@@ -110,7 +125,6 @@ workflow umiCollapse {
     }
 
     Array[Int] umiLengths = getUMILengths.umiLengths
-    #Array[FastqInputs] fastqInputs_ = select_first([fastqInputs])
 
     scatter (fq in fastqInputs) {
         call extractUMIs { 
@@ -139,6 +153,14 @@ workflow umiCollapse {
             Bams = bwaMem.bwaMemBam
     }
 
+    if (doBamQC) {
+        call bamQC.bamQC as preDedupBamQC {
+            input:
+                bamFile = mergeLibrary.mergedBam,
+                outputFileNamePrefix = "~{outputPrefix}.preDedup"
+        }
+    }
+
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
@@ -154,21 +176,25 @@ workflow umiCollapse {
             Bams = bamSplitDeduplication.umiDedupBams
     }
 
+    if (provisionBam) {
+        File umiDedupBam = bamMerge.mergedBam
+    }
+
+    if (doBamQC) {
+        call bamQC.bamQC as postDedupBamQC {
+            input:
+                bamFile = bamMerge.mergedBam,
+                outputFileNamePrefix = "~{outputPrefix}.postDedup"
+        }
+    }
+
     call statsMerge {
         input:
             statsEditDistances = bamSplitDeduplication.dedupEditDistance,
             umiCountsPerPositions = bamSplitDeduplication.dedupUmiCountsPerPosition,
             umiCountsArray = bamSplitDeduplication.dedupUmiCounts,
             outputPrefix = outputPrefix
-
     }
-
-    output {
-        File deduplicatedBam = bamMerge.mergedBam
-        File statsEditDistance = statsMerge.statsEditDistance
-        File umiCountsPerPosition = statsMerge.umiCountsPerPosition
-        File umiCounts = statsMerge.umiCounts
-    } 
 }
 
 task getUMILengths {
@@ -368,6 +394,7 @@ task bamMerge {
     command <<<        
         set -euo pipefail
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
+        samtools index "~{outputPrefix}.dedup.bam"
     >>>
 
     runtime {
@@ -378,6 +405,7 @@ task bamMerge {
 
     output {
         File mergedBam = "~{resultMergedBam}"
+        File mergedBamIndex = "~{outputPrefix}.dedup.bam.bai"
     }
 
 }
