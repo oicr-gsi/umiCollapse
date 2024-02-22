@@ -96,6 +96,10 @@ workflow umiCollapse {
             {   
                 name: "gsi mm10 modules:  mm10-bwa-index/0.7.12",
                 url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
+            },
+            {
+                name: "bam-qc-metrics/0.2.5",
+                url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
             }
 
         ]
@@ -110,7 +114,7 @@ workflow umiCollapse {
     }
 
     output {
-        File? deduplicatedBam = umiDedupBam
+        File? deduplicatedBam = umiDedupedBam
         File statsEditDistance = statsMerge.statsEditDistance
         File umiCountsPerPosition = statsMerge.umiCountsPerPosition
         File umiCounts = statsMerge.umiCounts
@@ -156,7 +160,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as preDedupBamQC {
             input:
-                bamFile = mergeLibrary.mergedBam,
+                bamFile = mergeLibrary.mergedBam ,
                 outputFileNamePrefix = "~{outputPrefix}.preDedup"
         }
     }
@@ -164,7 +168,7 @@ workflow umiCollapse {
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
-                bamFile = mergeLibrary.mergedBam,
+                bamFile = mergeLibrary.mergedBam ,
                 umiLength = umiLength,
                 outputPrefix = outputPrefix
         }
@@ -177,13 +181,13 @@ workflow umiCollapse {
     }
 
     if (provisionBam) {
-        File umiDedupBam = bamMerge.mergedBam
+        File umiDedupedBam = bamMerge.mergedBam 
     }
 
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                bamFile = bamMerge.mergedBam,
+                bamFile = bamMerge.mergedBam ,
                 outputFileNamePrefix = "~{outputPrefix}.postDedup"
         }
     }
@@ -308,6 +312,7 @@ task extractUMIs {
         }
 }
 
+
 task bamSplitDeduplication {
     input {
         Int umiLength
@@ -316,37 +321,27 @@ task bamSplitDeduplication {
         String outputPrefix
         Int memory = 24
         Int timeout = 6
-        String method = "directional"
-        Int editDistanceThreshold = 1
     }
 
     parameter_meta {
-        umiLength: "length of umi"
         bamFile: "Bam file from bwaMem containing UMIs of varying lengths"
+        umiLength: "Specifies the start of the output files"
         outputPrefix: "Specifies the start of the output files"
         modules: "Required environment modules"
         memory: "Memory allocated for this job"
         timeout: "Time in hours before task timeout"
-        method: "What method to use to identify group of reads with the same (or similar) UMI(s)?"
-        editDistanceThreshold: "Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network."
     }
 
     command <<<
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
         samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
-        samtools view $bamfile | grep -P "^.*__\S{~{7}\t" >> output.7.sam
         samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
 
         samtools index ~{outputPrefix}.~{umiLength}.bam
 
-        umi_tools dedup \
-        -I ~{outputPrefix}.~{umiLength}.bam \
+        umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
         -S deduplicated.bam \
-        --output-stats=deduplicated \
-        --log=deduplicated.log \
-        --paired \
-        --method=~{method} \
-        --edit-distance-threshold=~{editDistanceThreshold}
+        --output-stats=deduplicated 
     >>>
 
     runtime {
@@ -357,17 +352,15 @@ task bamSplitDeduplication {
 
     output {
         File umiDedupBams = "deduplicated.bam"
-        File dedupEditDistance = "deduplicated_edit_distance.tsv"
         File dedupUmiCountsPerPosition = "deduplicated_per_umi_per_position.tsv"
+        File dedupEditDistance = "deduplicated_edit_distance.tsv"
         File dedupUmiCounts = "deduplicated_per_umi.tsv"
     }
 
     meta {
         output_meta: {
-            umiDedupBams: "Bam files after deduplication",
-            dedupEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
-            dedupUmiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
-            dedupUmiCounts: "tsv file provides UMI-level summary statistics"
+            umiDedupBams: "Bam files with deduplicated UMIs of varying lengths",
+            dedupUmiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position"
         }
     }
 }
@@ -394,7 +387,6 @@ task bamMerge {
     command <<<        
         set -euo pipefail
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
-        samtools index "~{outputPrefix}.dedup.bam"
     >>>
 
     runtime {
@@ -405,24 +397,26 @@ task bamMerge {
 
     output {
         File mergedBam = "~{resultMergedBam}"
-        File mergedBamIndex = "~{outputPrefix}.dedup.bam.bai"
     }
 
+    meta {
+        output_meta: {
+            mergedBam : "Deduplicated bam file"
+        }
+    }
 }
 
 task statsMerge {
     input{
-        Array[File] statsEditDistances
         Array[File] umiCountsPerPositions
         Array[File] umiCountsArray
+        Array[File] statsEditDistances
         Int memory = 16
         String outputPrefix
     }
 
     parameter_meta {
-        statsEditDistances: "An array of TSV files with stats_edit_distance"
         umiCountsPerPositions: "An array of TSV files with umiCountsPerPosition"
-        umiCountsArray: "An array of TSV files with umiCounts"
         memory: "Memory allocated for this job"
     }
 
@@ -476,9 +470,8 @@ task statsMerge {
     }
 
     output {
-        File statsEditDistance = "~{outputPrefix}.statsEditDistance.tsv"
         File umiCountsPerPosition = "~{outputPrefix}.umiCountsPerPosition.tsv"
+        File statsEditDistance = "~{outputPrefix}.statsEditDistance.tsv"
         File umiCounts= "~{outputPrefix}.umiCounts.tsv"
     }
-
 }

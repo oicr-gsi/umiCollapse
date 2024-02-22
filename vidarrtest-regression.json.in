@@ -3,6 +3,8 @@
         "id": "umiCollapse_dataset2",
         "description": "umiCollapse workflow test", 
         "arguments": {
+            "umiCollapse.doBamQC": null,
+            "umiCollapse.provisionBam": null,
             "umiCollapse.bamMerge.memory": null,
             "umiCollapse.bamMerge.modules": "samtools/1.9",
             "umiCollapse.bamMerge.timeout": null,
@@ -168,6 +170,22 @@
                 "type": "ALL"
             },
             "umiCollapse.umiCounts": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "preDedupBamMetrics": {
+                "contents": [
+                    {
+                        "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
+                    }
+                ],
+                "type": "ALL"
+            },
+            "postDedupBamMetrics": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"

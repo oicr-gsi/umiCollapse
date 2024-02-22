@@ -16,6 +16,7 @@ The incorporation of Unique Molecular Indices (UMIs) into sequenced reads allows
 * [gsi hg38 modules:  hg38-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [gsi hg19 modules:  hg19-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [gsi mm10 modules:  mm10-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
+* [bam-qc-metrics 0.2.5](https://github.com/oicr-gsi/bam-qc-metrics.git)
 
 
 ## Usage
@@ -163,8 +164,6 @@ Parameter|Value|Default|Description
 `bamSplitDeduplication.modules`|String|"umi-tools/1.0.0 samtools/1.9"|Required environment modules
 `bamSplitDeduplication.memory`|Int|24|Memory allocated for this job
 `bamSplitDeduplication.timeout`|Int|6|Time in hours before task timeout
-`bamSplitDeduplication.method`|String|"directional"|What method to use to identify group of reads with the same (or similar) UMI(s)?
-`bamSplitDeduplication.editDistanceThreshold`|Int|1|Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network.
 `bamMerge.modules`|String|"samtools/1.9"|Required environment modules
 `bamMerge.memory`|Int|24|Memory allocated for indexing job
 `bamMerge.timeout`|Int|6|Hours before task timeout
@@ -250,41 +249,102 @@ Output | Type | Description
 `preDedupBamMetrics`|File?|pre-collapse bamqc metrics
 `postDedupBamMetrics`|File?|post-collapse bamqc metrics
 
-
 ## Commands
-   This section lists command(s) run by UmiCollapse workflow
-   
-   * Running UmiCollapse
-   
-  
-   ```
-   
-               barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
-               --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
-               --pattern2 '~{pattern2}' --r2-in ~{fastq2} 
-   
-               cat ~{outputPrefix}_UMI_counts.json > umiCounts.txt
-   
-               tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
-               echo "{$(sort -i tmp.txt)}" > new.txt
-               tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
+This section lists command(s) run by umiCollapse workflow
+
+* Running umiCollapse
+
+```
+
+      k=($(awk '{ match($1, "([ACTG])+"); print RLENGTH }' ~{umiList} | uniq))
+
+      for i in ${k[@]}
+      do
+          for j in ${k[@]}
+          do
+              # adding 1 to account for period in UMI
+              # 'ATG.ATCG'
+              L+=($(($i+$j+1)))
+          done
+      done
+
+      umiLengths=($(tr ' ' '\n' ``` "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
+      printf "%s\n" "${umiLengths[@]}"
+
   ```
-   ```
-           samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
-           samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
-           samtools view $bamfile | grep -P "^.*__\S{~{7}\t" >> output.7.sam
-           samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
-   
-           samtools index ~{outputPrefix}.~{umiLength}.bam
-   
-           umi_tools dedup \
-           -I ~{outputPrefix}.~{umiLength}.bam \
-           -S deduplicated.bam \
-           --output-stats=deduplicated \
-           --log=deduplicated.log \
-           --paired 
-  ```
- ## Support
+```
+
+            barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
+            --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
+            --pattern2 '~{pattern2}' --r2-in ~{fastq2} 
+
+            cat ~{outputPrefix}_UMI_counts.json > umiCounts.txt
+
+            tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
+            echo "{$(sort -i tmp.txt)}" > new.txt
+            tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
+        ```
+```
+        samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
+        samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
+        samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
+
+        samtools index ~{outputPrefix}.~{umiLength}.bam
+
+        umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
+        -S deduplicated.bam \
+        --output-stats=deduplicated 
+    ```
+```        
+        set -euo pipefail
+        samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
+    ```
+```
+        set -euo pipefail
+        statsEditDistances=(~{sep=" " statsEditDistances})
+        umiCountsPerPositions=(~{sep=" " umiCountsPerPositions})
+        umiCountsArray=(~{sep=" " umiCountsArray})
+
+        length=${#statsEditDistances[@]}
+        touch stats.tsv
+        i=0
+        while [ $i -lt $length ]
+        do
+            cat stats.tsv > tmp.tsv
+            awk  'BEGIN {OFS='\t'} \
+            {s1[$5]+=$1; s2[$5]+=$2; s3[$5]+=$3; s4[$5]+=$4} \
+            END {for (k in s1) print s1[k]"\t"s2[k]"\t"s3[k]"\t"s4[k]"\t"k}' \
+            tmp.tsv <(tail -n +2 ${statsEditDistances[i]}) > stats.tsv
+            i=$(( $i+1 )) 
+        done
+        sort -k5 -o stats.tsv stats.tsv
+        cat <(head -n 1 ${statsEditDistances[0]}) stats.tsv > ~{outputPrefix}.statsEditDistance.tsv
+
+        length=${#umiCountsPerPositions[@]}
+        touch umi.tsv
+        i=0
+        while [ $i -lt $length ]
+        do
+            cat umi.tsv > tmp.tsv
+            awk  '{s2[$1]+=$2; s3[$1]+=$3} \
+            END {for (k in s2) print k"\t"s2[k]"\t"s3[k]}' \
+            tmp.tsv <(tail -n +2 ${umiCountsPerPositions[i]}) > umi.tsv
+            i=$(( $i+1 ))
+        done
+        cat <(head -n 1 ${umiCountsPerPositions[0]}) umi.tsv > ~{outputPrefix}.umiCountsPerPosition.tsv
+
+        length=${#umiCountsArray[@]}
+        head -n 1 ${umiCountsArray[0]} > umiCounts.tsv
+        i=0
+        while [ $i -lt $length ]
+        do
+            cat umiCounts.tsv > tmp.tsv
+            cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > ~{outputPrefix}.umiCounts.tsv
+            i=$(( $i+1 ))
+        done
+```
+
+## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
 
