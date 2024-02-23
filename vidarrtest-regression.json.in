@@ -333,7 +333,7 @@
                 ],
                 "type": "ALL"
             },
-            "preDedupBamMetrics": {
+            "umiCollapse.preDedupBamMetrics": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
@@ -341,7 +341,7 @@
                 ],
                 "type": "ALL"
             },
-            "postDedupBamMetrics": {
+            "umiCollapse.postDedupBamMetrics": {
                 "contents": [
                     {
                         "outputDirectory": "@SCRATCH@/@DATE@_Workflow_umiCollapseWorkflow_umiCollapse_dataset2_@JENKINSID@"
