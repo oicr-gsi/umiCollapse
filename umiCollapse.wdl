@@ -38,7 +38,7 @@ workflow umiCollapse {
     "mm10": {
         "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
         "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
-    },
+    }
     }
 
     parameter_meta {
@@ -160,7 +160,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as preDedupBamQC {
             input:
-                bamFile = mergeLibrary.mergedBam ,
+                bamFile = mergeLibrary.mergedBam,
                 outputFileNamePrefix = "~{outputPrefix}.preDedup"
         }
     }
@@ -168,7 +168,7 @@ workflow umiCollapse {
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
-                bamFile = mergeLibrary.mergedBam ,
+                bamFile = mergeLibrary.mergedBam,
                 umiLength = umiLength,
                 outputPrefix = outputPrefix
         }
@@ -187,7 +187,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                bamFile = bamMerge.mergedBam ,
+                bamFile = bamMerge.mergedBam,
                 outputFileNamePrefix = "~{outputPrefix}.postDedup"
         }
     }
