@@ -160,7 +160,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as preDedupBamQC {
             input:
-                bamFile = mergeLibrary.mergedBam ,
+                bamFile = mergeLibrary.mergedBam,
                 outputFileNamePrefix = "~{outputPrefix}.preDedup"
         }
     }
@@ -168,7 +168,7 @@ workflow umiCollapse {
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
-                bamFile = mergeLibrary.mergedBam ,
+                bamFile = mergeLibrary.mergedBam,
                 umiLength = umiLength,
                 outputPrefix = outputPrefix
         }
@@ -187,7 +187,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                bamFile = bamMerge.mergedBam ,
+                bamFile = bamMerge.mergedBam,
                 outputFileNamePrefix = "~{outputPrefix}.postDedup"
         }
     }
@@ -211,7 +211,7 @@ task getUMILengths {
   }
 
   command <<<
-
+      set -euo pipefail
       k=($(awk '{ match($1, "([ACTG])+"); print RLENGTH }' ~{umiList} | uniq))
 
       for i in ${k[@]}
@@ -337,6 +337,7 @@ task bamSplitDeduplication {
     }
 
     command <<<
+        set -euo pipefail
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
         samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
         samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
