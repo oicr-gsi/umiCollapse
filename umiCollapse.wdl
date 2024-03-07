@@ -38,7 +38,7 @@ workflow umiCollapse {
     "mm10": {
         "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
         "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
-    },
+    }
     }
 
     parameter_meta {
