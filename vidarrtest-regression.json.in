@@ -193,8 +193,8 @@
             "umiCollapse.preDedupBamQC.markDuplicates_threads": null,
             "umiCollapse.preDedupBamQC.markDuplicates_timeout": null,
             "umiCollapse.preDedupBamQC.metadata": {
-                "donor": "KLCS_0020",
-                "group id": "BBCGP_4042_105377_LIB-16-0007_813570_Pl_1",
+                "donor": "BIOLICAN_0071",
+                "group id": "230313_M00753_0547",
                 "library design": "TS",
                 "tissue origin": "Ct",
                 "tissue type": "T"
@@ -233,12 +233,12 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:2230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT\\tSM:BIOLICAN_0071_01_LB01-01'"
                 },
                 {
                     "fastq1": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/0d54/2053/5bfc/0d5420535bfcfdcb36bc1bf2828a3a235721f21af60aa2b3c82a98ce635f2876/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -250,7 +250,7 @@
                     },
                     "fastq2": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/0d54/2053/5bfc/0d5420535bfcfdcb36bc1bf2828a3a235721f21af60aa2b3c82a98ce635f2876/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -260,12 +260,12 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG\\tSM:BIOLICAN_0071_01_LB01-01'"
                 },
                 {
                     "fastq1": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/ba23/f50e/a436/ba23f50ea436d580cca39700207f2eefb055af58baf102a8ad6a959edf233fa3/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -277,7 +277,7 @@
                     },
                     "fastq2": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/ba23/f50e/a436/ba23f50ea436d580cca39700207f2eefb055af58baf102a8ad6a959edf233fa3/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -287,7 +287,7 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:1\\tLB:neat_5x_EX_hg19_golden\\tPL:illumina\\tPU:run_barcode\\tSM:neat_5x_EX_hg19_golden'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG\\tSM:BIOLICAN_0071_01_LB01-01'"
                 }
             ],
             "umiCollapse.outputPrefix": "test2",
