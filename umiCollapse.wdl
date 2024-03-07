@@ -38,7 +38,7 @@ workflow umiCollapse {
     "mm10": {
         "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
         "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
-    }
+    },
     }
 
     parameter_meta {
@@ -160,7 +160,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as preDedupBamQC {
             input:
-                bamFile = mergeLibrary.mergedBam,
+                bamFile = mergeLibrary.mergedBam ,
                 outputFileNamePrefix = "~{outputPrefix}.preDedup"
         }
     }
@@ -168,7 +168,7 @@ workflow umiCollapse {
     scatter (umiLength in umiLengths) {
         call bamSplitDeduplication {
             input:
-                bamFile = mergeLibrary.mergedBam,
+                bamFile = mergeLibrary.mergedBam ,
                 umiLength = umiLength,
                 outputPrefix = outputPrefix
         }
@@ -187,7 +187,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                bamFile = bamMerge.mergedBam,
+                bamFile = bamMerge.mergedBam ,
                 outputFileNamePrefix = "~{outputPrefix}.postDedup"
         }
     }
@@ -321,6 +321,8 @@ task bamSplitDeduplication {
         String outputPrefix
         Int memory = 24
         Int timeout = 6
+        String method = "directional"
+        Int editDistanceThreshold = 1
     }
 
     parameter_meta {
@@ -330,6 +332,8 @@ task bamSplitDeduplication {
         modules: "Required environment modules"
         memory: "Memory allocated for this job"
         timeout: "Time in hours before task timeout"
+        method: "What method to use to identify group of reads with the same (or similar) UMI(s)?"
+        editDistanceThreshold: "Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network."
     }
 
     command <<<
@@ -341,6 +345,9 @@ task bamSplitDeduplication {
 
         umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
         -S deduplicated.bam \
+        --paired \
+        --method=~{method} \
+        --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
     >>>
 
