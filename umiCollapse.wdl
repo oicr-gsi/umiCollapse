@@ -393,7 +393,6 @@ task bamMerge {
     String resultMergedBam = "~{outputPrefix}.dedup.bam"
 
     command <<<        
-        set -euo pipefail
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
     >>>
 
