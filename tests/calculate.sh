@@ -7,5 +7,7 @@ set -o pipefail
 cd $1
 
 #find output files, return their md5sums to std out
-find . -name "*umiCountsPerPosition.tsv" -xtype f -exec sh -c "cat {} | md5sum |sort" \;
+find . -name "*umiCountsPerPosition.tsv" -xtype f -exec sh -c "cat {} | md5sum " \;
+find . -name "*results.json" -xtype f -exec sh -c "cat {} | md5sum |sort" \;
+find . -name "*.bam" -xtype f -exec sh -c "cat {} | md5sum " \;
 ls | sed 's/.*\.//' | sort | uniq -c

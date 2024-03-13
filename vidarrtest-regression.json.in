@@ -3,7 +3,7 @@
         "id": "umiCollapse_dataset2",
         "description": "umiCollapse workflow test", 
         "arguments": {
-            "umiCollapse.doBamQC": null,
+            "umiCollapse.doBamQC": true,
             "umiCollapse.provisionBam": null,
             "umiCollapse.bamMerge.memory": null,
             "umiCollapse.bamMerge.modules": "samtools/1.9",
@@ -354,7 +354,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.4/umiCollapse_dataset2.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.6/umiCollapse_dataset2.metrics",
                 "type": "script"
             }
         ]

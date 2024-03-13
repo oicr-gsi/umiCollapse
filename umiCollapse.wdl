@@ -346,7 +346,6 @@ task bamSplitDeduplication {
 
         umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
         -S deduplicated.bam \
-        --paired \
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 

@@ -293,6 +293,8 @@ This section lists command(s) run by umiCollapse workflow
 
         umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
         -S deduplicated.bam \
+        --method=~{method} \
+        --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
     ```
 ```        
