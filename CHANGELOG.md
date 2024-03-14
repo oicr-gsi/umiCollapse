@@ -1,3 +1,6 @@
+## 1.0.6 - 2024-03-13
+- Removed optional parameter --paired in umi-tools dedup
+
 ## 1.0.5 - 2024-02-27
 - Added bamQC step as optional, provisio  out bam file now also optional
 
