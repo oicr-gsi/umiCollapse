@@ -66,10 +66,6 @@ workflow bamQC {
     Int indexBamFile_threads = 4
     Int indexBamFile_jobMemory = 16
     String indexBamFile_modules = "samtools/1.9"
-    Int countInputReads_timeout = 4
-    Int countInputReads_threads = 4
-    Int countInputReads_jobMemory = 16
-    String countInputReads_modules = "samtools/1.9"
     Int updateMetadata_timeout = 4
     Int updateMetadata_threads = 4
     Int updateMetadata_jobMemory = 16
@@ -84,7 +80,6 @@ workflow bamQC {
     String mode
     String intervalsToParallelizeByString = "chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY,chrM"
     Array[InputGroup] inputGroups
-    String splitStringToArray_lineSeparator = ","
     String splitStringToArray_lineSeparator = ","
     String splitStringToArray_recordSeparator = "+"
     Int splitStringToArray_jobMemory = 1
@@ -152,10 +147,6 @@ workflow bamQC {
         indexBamFile_threads: "Requested CPU threads"
         indexBamFile_jobMemory: "Memory allocated for this job"
         indexBamFile_modules: "required environment modules"
-        countInputReads_timeout: "hours before task timeout"
-        countInputReads_threads: "Requested CPU threads"
-        countInputReads_jobMemory: "Memory allocated for this job"
-        countInputReads_modules: "required environment modules"
         updateMetadata_timeout: "hours before task timeout"
         updateMetadata_threads: "Requested CPU threads"
         updateMetadata_jobMemory: "Memory allocated for this job"
