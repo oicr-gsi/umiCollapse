@@ -146,10 +146,8 @@ workflow umiCollapse {
                 input:
                     fastqR1 = extractUMIs.fastqR1,
                     fastqR2 = extractUMIs.fastqR2,
-                    readGroups = fq.readGroups,
-                    outputFileNamePrefix = outputPrefix,
-                    runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
-                    runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
+                    runBwaMem_readGroups = fq.readGroups,
+                    outputFileNamePrefix = outputPrefix
             }
     }
 
