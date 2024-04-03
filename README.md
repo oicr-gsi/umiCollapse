@@ -44,6 +44,7 @@ Parameter|Value|Description
 `postDedupBamQC.bamQCMetrics_refSizesBed`|String|Path to human genome BED reference with chromosome sizes
 `postDedupBamQC.bamQCMetrics_refFasta`|String|Path to human genome FASTA reference
 `postDedupBamQC.metadata`|Map[String,String]|JSON file containing metadata
+`mode`|String|Running mode for the workflow, only allow value 'lane_level' and 'call_ready'
 
 
 #### Optional workflow parameters:

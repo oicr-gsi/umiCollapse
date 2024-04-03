@@ -24,6 +24,7 @@ workflow umiCollapse {
         String reference
         Boolean doBamQC = false
         Boolean provisionBam = true
+        String mode
     }
 
     Map[String, GenomeResources] resources = {
@@ -50,6 +51,7 @@ workflow umiCollapse {
         reference: "Name and version of reference genome"
         doBamQC: "Enable/disable bamQC process"
         provisionBam: "Enable/disable provision out umi deduplicated bam file"
+        mode: "running mode for the workflow, only allow value 'lane_level' and 'call_ready'"
     }
 
     meta {
@@ -160,9 +162,10 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as preDedupBamQC {
             input:
-                bamFile = mergeLibrary.mergedBam,
-                outputFileNamePrefix = "~{outputPrefix}.preDedup"
-        }
+                inputGroups = [{"bam": mergeLibrary.mergedBam, "bamIndex": mergeLibrary.mergedBai}],
+                outputFileNamePrefix = "~{outputPrefix}.preDedup",
+                mode = mode
+          }
     }
 
     scatter (umiLength in umiLengths) {
@@ -187,8 +190,9 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                bamFile = bamMerge.mergedBam,
-                outputFileNamePrefix = "~{outputPrefix}.postDedup"
+                inputGroups = [{"bam": mergeLibrary.mergedBam, "bamIndex": mergeLibrary.mergedBai}],
+                outputFileNamePrefix = "~{outputPrefix}.postDedup",
+                mode = mode
         }
     }
 
@@ -393,6 +397,7 @@ task bamMerge {
 
     command <<<        
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
+        samtools index "~{outputPrefix}.dedup.bam"
     >>>
 
     runtime {
@@ -403,6 +408,7 @@ task bamMerge {
 
     output {
         File mergedBam = "~{resultMergedBam}"
+        File mergedBai = "~{outputPrefix}.dedup.bam.bai"
     }
 
     meta {
