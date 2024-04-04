@@ -17,7 +17,8 @@ The incorporation of Unique Molecular Indices (UMIs) into sequenced reads allows
 * [gsi hg19 modules:  hg19-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [gsi mm10 modules:  mm10-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [bam-qc-metrics 0.2.5](https://github.com/oicr-gsi/bam-qc-metrics.git)
-
+* [bwaMem 2.2.1](https://github.com/oicr-gsi/bwaMem)
+* [bamQC 5.1.3](https://github.com/oicr-gsi/bamQC)
 
 ## Usage
 

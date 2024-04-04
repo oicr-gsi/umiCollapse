@@ -102,6 +102,14 @@ workflow umiCollapse {
             {
                 name: "bam-qc-metrics/0.2.5",
                 url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
+            },
+            {
+                name: "bwaMem 2.2.1",
+                url: "https://github.com/oicr-gsi/bwaMem"
+            },
+            {
+                name: "bamQC 5.1.3",
+                url: "https://github.com/oicr-gsi/bamQC"
             }
 
         ]
