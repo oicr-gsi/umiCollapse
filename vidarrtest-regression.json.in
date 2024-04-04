@@ -433,7 +433,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.6/umiCollapse_dataset2.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.7/umiCollapse_dataset2.metrics",
                 "type": "script"
             }
         ]

@@ -1,3 +1,6 @@
+## 1.0.7 - 2024-04-03
+- Update subworkflows bamQC and bwaMem to new version
+
 ## 1.0.6 - 2024-03-13
 - Removed optional parameter --paired in umi-tools dedup
 
