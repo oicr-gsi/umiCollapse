@@ -1,8 +1,13 @@
 version 1.0
 
+struct InputGroup {
+  File bam
+  File bamIndex
+}
+
 workflow bamQC {
 
-    input {
+  input {
     Int collateResults_timeout = 1
     Int collateResults_threads = 4
     Int collateResults_jobMemory = 8
@@ -32,11 +37,11 @@ workflow bamQC {
     Int downsampleRegion_timeout = 4
     Int downsampleRegion_threads = 4
     Int downsampleRegion_jobMemory = 16
-    String downsampleRegion_modules = "samtools/1.9"
+    String downsampleRegion_modules = "samtools/1.14"
     Int downsample_timeout = 4
     Int downsample_threads = 4
     Int downsample_jobMemory = 16
-    String downsample_modules = "samtools/1.9"
+    String downsample_modules = "samtools/1.14"
     Int downsample_randomSeed = 42
     String downsample_downsampleSuffix = "downsampled.bam"
     Int findDownsampleParamsMarkDup_timeout = 4
@@ -57,14 +62,6 @@ workflow bamQC {
     Int findDownsampleParams_minReadsRelative = 2
     Int findDownsampleParams_minReadsAbsolute = 10000
     Int findDownsampleParams_targetReads = 100000
-    Int indexBamFile_timeout = 4
-    Int indexBamFile_threads = 4
-    Int indexBamFile_jobMemory = 16
-    String indexBamFile_modules = "samtools/1.9"
-    Int countInputReads_timeout = 4
-    Int countInputReads_threads = 4
-    Int countInputReads_jobMemory = 16
-    String countInputReads_modules = "samtools/1.9"
     Int updateMetadata_timeout = 4
     Int updateMetadata_threads = 4
     Int updateMetadata_jobMemory = 16
@@ -72,102 +69,238 @@ workflow bamQC {
     Int filter_timeout = 4
     Int filter_threads = 4
     Int filter_jobMemory = 16
-    String filter_modules = "samtools/1.9"
+    String filter_modules = "samtools/1.14"
     Int filter_minQuality = 30
-    File bamFile
+    String mergeFiles_modules = "gatk/4.1.6.0"
+    Int mergeFiles_timeout = 24
+    Int mergeFiles_cores = 1
+    Int mergeFiles_overhead = 6
+    Int mergeFiles_jobMemory = 24
+    String mergeFiles_suffix = ".merge"
+    String mergeSplitByIntervalFiles_modules = "gatk/4.1.6.0"
+    Int mergeSplitByIntervalFiles_timeout = 24
+    Int mergeSplitByIntervalFiles_cores = 1
+    Int mergeSplitByIntervalFiles_overhead = 6
+    Int mergeSplitByIntervalFiles_jobMemory = 24
+    String mergeSplitByIntervalFiles_suffix = ".merge"
+    Int preFilter_timeout = 4
+    Int preFilter_threads = 4
+    Int preFilter_minMemory = 2
+    Int preFilter_jobMemory = 6
+    String preFilter_modules = "samtools/1.14"
+    String? preFilter_filterAdditionalParams
+    Int? preFilter_minMapQuality
+    Int preFilter_filterFlags = 260
+    String getChrCoefficient_modules = "samtools/1.14"
+    Int getChrCoefficient_timeout = 1
+    Int getChrCoefficient_memory = 2
+    String splitStringToArray_modules = ""
+    Int splitStringToArray_timeout = 1
+    Int splitStringToArray_cores = 1
+    Int splitStringToArray_jobMemory = 1
+    String splitStringToArray_recordSeparator = "+"
+    String splitStringToArray_lineSeparator = ","
+    Array[InputGroup] inputGroups
     Map[String, String] metadata
+    String mode
     String outputFileNamePrefix = "bamQC"
-    }
+    String intervalsToParallelizeByString = "chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY,chrM"
+  }
 
-    parameter_meta {
-        collateResults_timeout: "hours before task timeout"
-        collateResults_threads: "Requested CPU threads"
-        collateResults_jobMemory: "Memory allocated for this job"
-        collateResults_modules: "required environment modules"
-        cumulativeDistToHistogram_timeout: "hours before task timeout"
-        cumulativeDistToHistogram_threads: "Requested CPU threads"
-        cumulativeDistToHistogram_jobMemory: "Memory allocated for this job"
-        cumulativeDistToHistogram_modules: "required environment modules"
-        runMosdepth_timeout: "hours before task timeout"
-        runMosdepth_threads: "Requested CPU threads"
-        runMosdepth_jobMemory: "Memory allocated for this job"
-        runMosdepth_modules: "required environment modules"
-        bamQCMetrics_timeout: "hours before task timeout"
-        bamQCMetrics_threads: "Requested CPU threads"
-        bamQCMetrics_jobMemory: "Memory allocated for this job"
-        bamQCMetrics_modules: "required environment modules"
-        bamQCMetrics_normalInsertMax: "Maximum of expected insert size range"
-        bamQCMetrics_workflowVersion: "Workflow version string"
-        bamQCMetrics_refSizesBed: "Path to human genome BED reference with chromosome sizes"
-        bamQCMetrics_refFasta: "Path to human genome FASTA reference"
-        markDuplicates_timeout: "hours before task timeout"
-        markDuplicates_threads: "Requested CPU threads"
-        markDuplicates_jobMemory: "Memory allocated for this job"
-        markDuplicates_modules: "required environment modules"
-        markDuplicates_picardMaxMemMb: "Memory requirement in MB for running Picard JAR"
-        markDuplicates_opticalDuplicatePixelDistance: "Maximum offset between optical duplicate clusters"
-        downsampleRegion_timeout: "hours before task timeout"
-        downsampleRegion_threads: "Requested CPU threads"
-        downsampleRegion_jobMemory: "Memory allocated for this job"
-        downsampleRegion_modules: "required environment modules"
-        downsample_timeout: "hours before task timeout"
-        downsample_threads: "Requested CPU threads"
-        downsample_jobMemory: "Memory allocated for this job"
-        downsample_modules: "required environment modules"
-        downsample_randomSeed: "Random seed for pre-downsampling (if any)"
-        downsample_downsampleSuffix: "Suffix for output file"
-        findDownsampleParamsMarkDup_timeout: "hours before task timeout"
-        findDownsampleParamsMarkDup_threads: "Requested CPU threads"
-        findDownsampleParamsMarkDup_jobMemory: "Memory allocated for this job"
-        findDownsampleParamsMarkDup_modules: "required environment modules"
-        findDownsampleParamsMarkDup_customRegions: "Custom downsample regions; overrides chromosome and interval parameters"
-        findDownsampleParamsMarkDup_intervalStart: "Start of interval in each chromosome, for very large BAMs"
-        findDownsampleParamsMarkDup_baseInterval: "Base width of interval in each chromosome, for very large BAMs"
-        findDownsampleParamsMarkDup_chromosomes: "Array of chromosome identifiers for downsampled subset"
-        findDownsampleParamsMarkDup_threshold: "Minimum number of reads to conduct downsampling"
-        findDownsampleParams_timeout: "hours before task timeout"
-        findDownsampleParams_threads: "Requested CPU threads"
-        findDownsampleParams_jobMemory: "Memory allocated for this job"
-        findDownsampleParams_modules: "required environment modules"
-        findDownsampleParams_preDSMultiplier: "Determines target size for pre-downsampled set (if any). Must have (preDSMultiplier) < (minReadsRelative)."
-        findDownsampleParams_precision: "Number of decimal places in fraction for pre-downsampling"
-        findDownsampleParams_minReadsRelative: "Minimum value of (inputReads)/(targetReads) to allow pre-downsampling"
-        findDownsampleParams_minReadsAbsolute: "Minimum value of targetReads to allow pre-downsampling"
-        findDownsampleParams_targetReads: "Desired number of reads in downsampled output"
-        indexBamFile_timeout: "hours before task timeout"
-        indexBamFile_threads: "Requested CPU threads"
-        indexBamFile_jobMemory: "Memory allocated for this job"
-        indexBamFile_modules: "required environment modules"
-        countInputReads_timeout: "hours before task timeout"
-        countInputReads_threads: "Requested CPU threads"
-        countInputReads_jobMemory: "Memory allocated for this job"
-        countInputReads_modules: "required environment modules"
-        updateMetadata_timeout: "hours before task timeout"
-        updateMetadata_threads: "Requested CPU threads"
-        updateMetadata_jobMemory: "Memory allocated for this job"
-        updateMetadata_modules: "required environment modules"
-        filter_timeout: "hours before task timeout"
-        filter_threads: "Requested CPU threads"
-        filter_jobMemory: "Memory allocated for this job"
-        filter_modules: "required environment modules"
-        filter_minQuality: "Minimum alignment quality to pass filter"
-    bamFile: "Input BAM file on which to compute QC metrics"
+  parameter_meta {
+      collateResults_timeout: "hours before task timeout"
+      collateResults_threads: "Requested CPU threads"
+      collateResults_jobMemory: "Memory allocated for this job"
+      collateResults_modules: "required environment modules"
+      cumulativeDistToHistogram_timeout: "hours before task timeout"
+      cumulativeDistToHistogram_threads: "Requested CPU threads"
+      cumulativeDistToHistogram_jobMemory: "Memory allocated for this job"
+      cumulativeDistToHistogram_modules: "required environment modules"
+      runMosdepth_timeout: "hours before task timeout"
+      runMosdepth_threads: "Requested CPU threads"
+      runMosdepth_jobMemory: "Memory allocated for this job"
+      runMosdepth_modules: "required environment modules"
+      bamQCMetrics_timeout: "hours before task timeout"
+      bamQCMetrics_threads: "Requested CPU threads"
+      bamQCMetrics_jobMemory: "Memory allocated for this job"
+      bamQCMetrics_modules: "required environment modules"
+      bamQCMetrics_normalInsertMax: "Maximum of expected insert size range"
+      bamQCMetrics_workflowVersion: "Workflow version string"
+      bamQCMetrics_refSizesBed: "Path to human genome BED reference with chromosome sizes"
+      bamQCMetrics_refFasta: "Path to human genome FASTA reference"
+      markDuplicates_timeout: "hours before task timeout"
+      markDuplicates_threads: "Requested CPU threads"
+      markDuplicates_jobMemory: "Memory allocated for this job"
+      markDuplicates_modules: "required environment modules"
+      markDuplicates_picardMaxMemMb: "Memory requirement in MB for running Picard JAR"
+      markDuplicates_opticalDuplicatePixelDistance: "Maximum offset between optical duplicate clusters"
+      downsampleRegion_timeout: "hours before task timeout"
+      downsampleRegion_threads: "Requested CPU threads"
+      downsampleRegion_jobMemory: "Memory allocated for this job"
+      downsampleRegion_modules: "required environment modules"
+      downsample_timeout: "hours before task timeout"
+      downsample_threads: "Requested CPU threads"
+      downsample_jobMemory: "Memory allocated for this job"
+      downsample_modules: "required environment modules"
+      downsample_randomSeed: "Random seed for pre-downsampling (if any)"
+      downsample_downsampleSuffix: "Suffix for output file"
+      findDownsampleParamsMarkDup_timeout: "hours before task timeout"
+      findDownsampleParamsMarkDup_threads: "Requested CPU threads"
+      findDownsampleParamsMarkDup_jobMemory: "Memory allocated for this job"
+      findDownsampleParamsMarkDup_modules: "required environment modules"
+      findDownsampleParamsMarkDup_customRegions: "Custom downsample regions; overrides chromosome and interval parameters"
+      findDownsampleParamsMarkDup_intervalStart: "Start of interval in each chromosome, for very large BAMs"
+      findDownsampleParamsMarkDup_baseInterval: "Base width of interval in each chromosome, for very large BAMs"
+      findDownsampleParamsMarkDup_chromosomes: "Array of chromosome identifiers for downsampled subset"
+      findDownsampleParamsMarkDup_threshold: "Minimum number of reads to conduct downsampling"
+      findDownsampleParams_timeout: "hours before task timeout"
+      findDownsampleParams_threads: "Requested CPU threads"
+      findDownsampleParams_jobMemory: "Memory allocated for this job"
+      findDownsampleParams_modules: "required environment modules"
+      findDownsampleParams_preDSMultiplier: "Determines target size for pre-downsampled set (if any). Must have (preDSMultiplier) < (minReadsRelative)."
+      findDownsampleParams_precision: "Number of decimal places in fraction for pre-downsampling"
+      findDownsampleParams_minReadsRelative: "Minimum value of (inputReads)/(targetReads) to allow pre-downsampling"
+      findDownsampleParams_minReadsAbsolute: "Minimum value of targetReads to allow pre-downsampling"
+      findDownsampleParams_targetReads: "Desired number of reads in downsampled output"
+      updateMetadata_timeout: "hours before task timeout"
+      updateMetadata_threads: "Requested CPU threads"
+      updateMetadata_jobMemory: "Memory allocated for this job"
+      updateMetadata_modules: "required environment modules"
+      filter_timeout: "hours before task timeout"
+      filter_threads: "Requested CPU threads"
+      filter_jobMemory: "Memory allocated for this job"
+      filter_modules: "required environment modules"
+      filter_minQuality: "Minimum alignment quality to pass filter"
+      mergeFiles_modules: "Environment module name and version to load (space separated) before command execution."
+      mergeFiles_timeout: "Maximum amount of time (in hours) the task can run for."
+      mergeFiles_cores: "The number of cores to allocate to the job."
+      mergeFiles_overhead: "Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory."
+      mergeFiles_jobMemory: "Memory allocated to job (in GB)."
+      mergeFiles_suffix: "suffix to use for merged bam"
+      mergeSplitByIntervalFiles_modules: "Environment module name and version to load (space separated) before command execution."
+      mergeSplitByIntervalFiles_timeout: "Maximum amount of time (in hours) the task can run for."
+      mergeSplitByIntervalFiles_cores: "The number of cores to allocate to the job."
+      mergeSplitByIntervalFiles_overhead: "Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory."
+      mergeSplitByIntervalFiles_jobMemory: "Memory allocated to job (in GB)."
+      mergeSplitByIntervalFiles_suffix: "suffix to use for merged bam"
+      preFilter_timeout: "hours before task timeout"
+      preFilter_threads: "Requested CPU threads"
+      preFilter_minMemory: "Minimum amount of RAM allocated to the task"
+      preFilter_jobMemory: "Memory allocated for this job"
+      preFilter_modules: "required environment modules"
+      preFilter_filterAdditionalParams: "Additional parameters to pass to samtools."
+      preFilter_minMapQuality: "Minimum alignment quality to pass filter"
+      preFilter_filterFlags: "Samtools filter flags to apply."
+      getChrCoefficient_modules: "Names and versions of modules to load"
+      getChrCoefficient_timeout: "Hours before task timeout"
+      getChrCoefficient_memory: "Memory allocated for this job"
+      splitStringToArray_modules: "Environment module name and version to load (space separated) before command execution."
+      splitStringToArray_timeout: "Maximum amount of time (in hours) the task can run for."
+      splitStringToArray_cores: "The number of cores to allocate to the job."
+      splitStringToArray_jobMemory: "Memory allocated to job (in GB)."
+      splitStringToArray_recordSeparator: "Record separator - a delimiter for joining records"
+      splitStringToArray_lineSeparator: "Interval group separator - these are the intervals to split by."
+    inputGroups: "Array of objects describing sets of bams to merge together and on which to compute QC metrics"
     metadata: "JSON file containing metadata"
+    mode: "running mode for the workflow, only allow value 'lane_level' and 'call_ready'"
     outputFileNamePrefix: "Prefix for output files"
+    intervalsToParallelizeByString: "Comma separated list of intervals to split by (e.g. chr1,chr2,chr3,chr4)."
     }
 
-    call filter {
+  if (( mode == "lane_level") && (length(inputGroups) ==1 )) {
+    File laneLevelBam = inputGroups[0].bam
+    File laneLevelBamIndex = inputGroups[0].bamIndex
+  }
+
+  if (mode == "call_ready") {
+    call splitStringToArray {
+        input:
+            modules = splitStringToArray_modules,
+            timeout = splitStringToArray_timeout,
+            cores = splitStringToArray_cores,
+            jobMemory = splitStringToArray_jobMemory,
+            recordSeparator = splitStringToArray_recordSeparator,
+            lineSeparator = splitStringToArray_lineSeparator,
+            str = intervalsToParallelizeByString
+        }
+    
+    Array[String] intervalsToParallelizeBy = flatten(splitStringToArray.out)
+    scatter (i in inputGroups) {
+        scatter (interval in intervalsToParallelizeBy) {
+        call getChrCoefficient {
+            input:
+            modules = getChrCoefficient_modules,
+            timeout = getChrCoefficient_timeout,
+            memory = getChrCoefficient_memory,
+            bamFile = i.bam,
+            chromosome = interval
+        } 
+        call preFilter {
+            input:
+            timeout = preFilter_timeout,
+            threads = preFilter_threads,
+            minMemory = preFilter_minMemory,
+            jobMemory = preFilter_jobMemory,
+            modules = preFilter_modules,
+            filterAdditionalParams = preFilter_filterAdditionalParams,
+            minMapQuality = preFilter_minMapQuality,
+            filterFlags = preFilter_filterFlags,
+            bamFile = i.bam,
+            bamIndex = i.bamIndex,
+            interval = interval,
+            scaleCoefficient = getChrCoefficient.coeff,
+            outputFileName = outputFileNamePrefix
+        }
+        }
+
+        Array[File] filteredBams = preFilter.filteredBam
+
+        call mergeFiles as mergeSplitByIntervalFiles {
+            input:
+            modules = mergeSplitByIntervalFiles_modules,
+            timeout = mergeSplitByIntervalFiles_timeout,
+            cores = mergeSplitByIntervalFiles_cores,
+            overhead = mergeSplitByIntervalFiles_overhead,
+            jobMemory = mergeSplitByIntervalFiles_jobMemory,
+            suffix = mergeSplitByIntervalFiles_suffix,
+            bams = filteredBams,
+            outputFileName = outputFileNamePrefix
+        }
+    }
+    Array[File] processedBams = mergeSplitByIntervalFiles.mergedBam
+
+    if (length(processedBams) > 1) {
+        call mergeFiles {
+                input:
+                modules = mergeFiles_modules,
+                timeout = mergeFiles_timeout,
+                cores = mergeFiles_cores,
+                overhead = mergeFiles_overhead,
+                jobMemory = mergeFiles_jobMemory,
+                suffix = mergeFiles_suffix,
+                bams = processedBams,
+                outputFileName = outputFileNamePrefix
+            }
+    } 
+    File mergedBam = select_first([mergeFiles.mergedBam, mergeSplitByIntervalFiles.mergedBam[0]])
+    File mergedBamIndex = select_first([mergeFiles.mergedBamIndex, mergeSplitByIntervalFiles.mergedBamIndex[0]])
+  }	
+
+  File qcReadyBam = select_first([laneLevelBam, mergedBam])
+  File qcReadyBamIndex = select_first([laneLevelBamIndex, mergedBamIndex])
+
+  call filter {
     input:
     timeout = filter_timeout,
     threads = filter_threads,
     jobMemory = filter_jobMemory,
     modules = filter_modules,
     minQuality = filter_minQuality,
-    bamFile = bamFile,
+    bamFile = qcReadyBam,
     outputFileNamePrefix = outputFileNamePrefix
-    }
+  }
 
-    call updateMetadata {
+  call updateMetadata {
     input:
     timeout = updateMetadata_timeout,
     threads = updateMetadata_threads,
@@ -179,24 +312,6 @@ workflow bamQC {
     nonPrimaryReads = filter.nonPrimaryReads,
     unmappedReads = filter.unmappedReads,
     lowQualityReads = filter.lowQualityReads
-    }
-
-    call countInputReads {
-    input:
-    timeout = countInputReads_timeout,
-    threads = countInputReads_threads,
-    jobMemory = countInputReads_jobMemory,
-    modules = countInputReads_modules,
-    bamFile = filter.filteredBam
-    }
-
-    call indexBamFile {
-    input:
-    timeout = indexBamFile_timeout,
-    threads = indexBamFile_threads,
-    jobMemory = indexBamFile_jobMemory,
-    modules = indexBamFile_modules,
-    bamFile = filter.filteredBam
     }
 
     call findDownsampleParams {
@@ -211,7 +326,7 @@ workflow bamQC {
     minReadsAbsolute = findDownsampleParams_minReadsAbsolute,
     targetReads = findDownsampleParams_targetReads,
     outputFileNamePrefix = outputFileNamePrefix,
-    inputReads = countInputReads.result
+    inputReads = filter.totalInputReads
     }
 
     call findDownsampleParamsMarkDup {
@@ -226,7 +341,7 @@ workflow bamQC {
     chromosomes = findDownsampleParamsMarkDup_chromosomes,
     threshold = findDownsampleParamsMarkDup_threshold,
     outputFileNamePrefix = outputFileNamePrefix,
-    inputReads = countInputReads.result
+    inputReads = filter.totalInputReads
     }
 
     Boolean ds = findDownsampleParams.status["ds"]
@@ -256,7 +371,7 @@ workflow bamQC {
         jobMemory = downsampleRegion_jobMemory,
         modules = downsampleRegion_modules,
         bamFile = filter.filteredBam,
-        bamIndex = indexBamFile.index,
+        bamIndex = filter.filteredBai,
         outputFileNamePrefix = outputFileNamePrefix,
         region = findDownsampleParamsMarkDup.region
     }
@@ -299,7 +414,7 @@ workflow bamQC {
     jobMemory = runMosdepth_jobMemory,
     modules = runMosdepth_modules,
     bamFile = filter.filteredBam,
-    bamIndex = indexBamFile.index
+    bamIndex = filter.filteredBai
     }
 
     call cumulativeDistToHistogram {
@@ -329,34 +444,81 @@ workflow bamQC {
     }
 
     meta {
-    author: "Iain Bancarz"
-    email: "ibancarz@oicr.on.ca"
-    description: "QC metrics for BAM files"
-    dependencies: [
-    {
-        name: "samtools/1.9",
-        url: "https://github.com/samtools/samtools"
-    },
-    {
-        name: "picard/2.21.2",
-        url: "https://broadinstitute.github.io/picard/command-line-overview.html"
-    },
-    {
-        name: "python/3.6",
-        url: "https://www.python.org/downloads/"
-    },
-    {
-        name: "bam-qc-metrics/0.2.5",
-        url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
-    },
-        {
-        name: "mosdepth/0.2.9",
-        url: "https://github.com/brentp/mosdepth"
-    }
-    ]
+        author: "Iain Bancarz"
+        email: "ibancarz@oicr.on.ca"
+        description: "QC metrics for BAM files"
+        dependencies: [
+            {
+                name: "samtools/1.14",
+                url: "https://github.com/samtools/samtools"
+            },
+            {
+                name: "picard/2.21.2",
+                url: "https://broadinstitute.github.io/picard/command-line-overview.html"
+            },
+            {
+                name: "python/3.6",
+                url: "https://www.python.org/downloads/"
+            },
+            {
+                name: "bam-qc-metrics/0.2.5",
+                url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
+            },
+                {
+                name: "mosdepth/0.2.9",
+                url: "https://github.com/brentp/mosdepth"
+            }
+        ]
+        output_meta: {
+            result: "json file that contains metrics and meta data described in https://github.com/oicr-gsi/bam-qc-metrics/blob/master/metrics.md"
+        }
     }
 
 }
+
+# ================================================================
+#  Scaling coefficient - use to scale RAM allocation by chromosome
+# ================================================================
+task getChrCoefficient {
+  input {
+    Int memory = 2
+    Int timeout = 1
+    String chromosome
+    String modules = "samtools/1.14"
+    File bamFile
+  }
+
+  parameter_meta {
+    bamFile: ".bam file to process, we just need the header"
+    timeout: "Hours before task timeout"
+    chromosome: "Chromosome to check"
+    memory: "Memory allocated for this job"
+    modules: "Names and versions of modules to load"
+  }
+
+  command <<<
+    CHROM_LEN=$(samtools view -H ~{bamFile} | grep ^@SQ | grep -v _ | grep -w ~{chromosome} | cut -f 3 | sed 's/LN://')
+    LARGEST=$(samtools view -H ~{bamFile} | grep ^@SQ | grep -v _ | cut -f 3 | sed 's/LN://' | sort -n | tail -n 1)
+    echo | awk -v chrom_len=$CHROM_LEN -v largest=$LARGEST '{print int((chrom_len/largest + 0.1) * 10)/10}'
+  >>>
+
+  runtime {
+    memory:  "~{memory} GB"
+    modules: "~{modules}"
+    timeout: "~{timeout}"
+  }
+
+  output {
+    String coeff = read_string(stdout())
+  }
+
+  meta {
+    output_meta: {
+      coeff: "Length ratio as relative to the largest chromosome."
+    }
+  }
+}
+
 
 task bamQCMetrics {
 
@@ -487,46 +649,6 @@ task collateResults {
     }
 }
 
-task countInputReads {
-
-    input {
-    File bamFile
-    String modules = "samtools/1.9"
-    Int jobMemory = 16
-    Int threads = 4
-    Int timeout = 4
-    }
-
-    parameter_meta {
-    bamFile: "Input BAM file of aligned data"
-    modules: "required environment modules"
-    jobMemory: "Memory allocated for this job"
-    threads: "Requested CPU threads"
-    timeout: "hours before task timeout"
-    }
-
-    runtime {
-    modules: "~{modules}"
-    memory:  "~{jobMemory} GB"
-    cpu:     "~{threads}"
-    timeout: "~{timeout}"
-    }
-
-    command <<<
-    samtools view -c ~{bamFile}
-    >>>
-    
-    output {
-    String result = read_string(stdout())
-    }
-
-    meta {
-    output_meta: {
-            output1: "Number of reads in input BAM file"
-    }
-    }
-}
-
 task cumulativeDistToHistogram {
 
     input {
@@ -634,7 +756,7 @@ task downsample {
     Map[String, String] downsampleTargets
     String downsampleSuffix = "downsampled.bam"
     Int randomSeed = 42
-    String modules = "samtools/1.9"
+    String modules = "samtools/1.14"
     Int jobMemory = 16
     Int threads = 4
     Int timeout = 4
@@ -708,7 +830,7 @@ task downsampleRegion {
     File bamIndex
     String outputFileNamePrefix
     String region
-    String modules = "samtools/1.9"
+    String modules = "samtools/1.14"
     Int jobMemory = 16
     Int threads = 4
     Int timeout = 4
@@ -763,11 +885,11 @@ task filter {
     # count the number of reads filtered out at each step
     # return filtered read counts and the filtered BAM file
 
-    input {
+   input {
     File bamFile
     String outputFileNamePrefix
     Int minQuality = 30
-    String modules = "samtools/1.9"
+    String modules = "samtools/1.14"
     Int jobMemory = 16
     Int threads = 4
     Int timeout = 4
@@ -784,6 +906,7 @@ task filter {
     }
 
     String resultName = "~{outputFileNamePrefix}.filtered.bam"
+    String resultIndexName = "~{outputFileNamePrefix}.filtered.bam.bai"
     String totalInputReadsFile = "total_input_reads.txt"
     String totalNonPrimaryReadsFile = "total_non_primary_reads.txt"
     String totalUnmappedReadsFile = "total_unmapped_reads.txt"
@@ -806,6 +929,7 @@ task filter {
     samtools view -c ~{nonPrimaryReadsFile} > ~{totalNonPrimaryReadsFile}
     samtools view -c ~{unmappedReadsFile} > ~{totalUnmappedReadsFile}
     samtools view -c ~{lowQualityReadsFile} > ~{totalLowQualityReadsFile}
+    samtools index ~{resultName} ~{resultIndexName}
     >>>
 
     runtime {
@@ -822,15 +946,17 @@ task filter {
     String unmappedReads = read_string("~{totalUnmappedReadsFile}")
     String lowQualityReads = read_string("~{totalLowQualityReadsFile}")
     File filteredBam = "~{resultName}"
+    File filteredBai = "~{resultIndexName}"
     }
 
     meta {
     output_meta: {
-        totalInputReads: "Total reads in original input BAM file",
-        nonPrimaryReads: "Total reads excluded as non-primary",
-        unmappedReads: "Total reads excluded as unmapped",
-        lowQualityReads: "Total reads excluded as low alignment quality",
-            filteredBam: "Filtered BAM file"
+    totalInputReads: "Total reads in original input BAM file",
+    nonPrimaryReads: "Total reads excluded as non-primary",
+    unmappedReads: "Total reads excluded as unmapped",
+    lowQualityReads: "Total reads excluded as low alignment quality",
+    filteredBam: "Filtered BAM file",
+    filteredBai: "Filtered bam index"
     }
     }
 
@@ -1042,50 +1168,6 @@ task findDownsampleParamsMarkDup {
     }
 }
 
-task indexBamFile {
-
-    input {
-    File bamFile
-    String modules = "samtools/1.9"
-    Int jobMemory = 16
-    Int threads = 4
-    Int timeout = 4
-    }
-
-    parameter_meta {
-    bamFile: "Input BAM file of aligned data"
-    modules: "required environment modules"
-    jobMemory: "Memory allocated for this job"
-    threads: "Requested CPU threads"
-    timeout: "hours before task timeout"
-    }
-
-    runtime {
-    modules: "~{modules}"
-    memory:  "~{jobMemory} GB"
-    cpu:     "~{threads}"
-    timeout: "~{timeout}"
-    }
-
-    String bamName = basename(bamFile)
-    String indexName = "~{bamName}.bai"
-    
-    command <<<
-    samtools index -b ~{bamFile} ~{indexName}
-    >>>
-    
-    output {
-    File index = indexName
-    }
-
-    meta {
-    output_meta: {
-            index: "Index file in BAI format"
-    }
-  }
-
-}
-
 task markDuplicates {
 
     input {
@@ -1146,6 +1228,121 @@ task markDuplicates {
 
 }
 
+task mergeFiles {
+  input {
+    Array[File] bams
+    String outputFileName
+    String suffix = ".merge"
+    Int jobMemory = 24
+    Int overhead = 6
+    Int cores = 1
+    Int timeout = 24
+    String modules = "gatk/4.1.6.0"
+  }
+
+  parameter_meta {
+    bams: "Array of bam files to merge together."
+    outputFileName: "Output files will be prefixed with this."
+    suffix: "suffix to use for merged bam"
+    jobMemory: "Memory allocated to job (in GB)."
+    overhead: "Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory."
+    cores: "The number of cores to allocate to the job."
+    timeout: "Maximum amount of time (in hours) the task can run for."
+    modules: "Environment module name and version to load (space separated) before command execution."
+  }
+
+  command <<<
+    set -euo pipefail
+
+    gatk --java-options "-Xmx~{jobMemory - overhead}G" MergeSamFiles \
+    ~{sep=" " prefix("--INPUT=", bams)} \
+    --OUTPUT="~{outputFileName}~{suffix}.bam" \
+    --CREATE_INDEX=true \
+    --SORT_ORDER=coordinate \
+    --ASSUME_SORTED=false \
+    --USE_THREADING=true \
+    --VALIDATION_STRINGENCY=SILENT 
+
+  >>>
+
+  output {
+    File mergedBam = "~{outputFileName}~{suffix}.bam"
+    File mergedBamIndex = "~{outputFileName}~{suffix}.bai"
+  }
+
+  runtime {
+    memory: "~{jobMemory} GB"
+    cpu: "~{cores}"
+    timeout: "~{timeout}"
+    modules: "~{modules}"
+  }
+
+}
+
+task preFilter {
+    input {
+    File bamFile
+    File bamIndex
+    String interval
+    String outputFileName
+    Int filterFlags = 260
+    Int? minMapQuality
+    Float scaleCoefficient = 1.0
+    String? filterAdditionalParams
+    String modules = "samtools/1.14"
+    Int jobMemory = 6
+    Int minMemory = 2
+    Int threads = 4
+    Int timeout = 4
+    }
+    parameter_meta {
+    bamFile: "Input BAM file of aligned rnaSeqQC data"
+    outputFileName: "Prefix for output file"
+    minMapQuality: "Minimum alignment quality to pass filter"
+        filterFlags: "Samtools filter flags to apply."
+        filterAdditionalParams: "Additional parameters to pass to samtools."
+        interval: "Usually, a chromosome id as it would appear in input .bam header"
+    modules: "required environment modules"
+        scaleCoefficient: "Chromosome-dependent RAM scaling coefficient"
+    jobMemory: "Memory allocated for this job"
+        minMemory: "Minimum amount of RAM allocated to the task"
+    threads: "Requested CPU threads"
+    timeout: "hours before task timeout"
+    }
+
+   String resultName = "~{outputFileName}.filtered.bam"
+   Int allocatedMemory = if minMemory > round(jobMemory * scaleCoefficient) then minMemory else round(jobMemory * scaleCoefficient)
+
+   command <<<
+   set -e
+   set -o pipefail
+   samtools view -b \
+        -F ~{filterFlags} \
+        ~{"-q " + minMapQuality} \
+        ~{filterAdditionalParams} \
+        ~{bamFile} \
+        ~{interval} > ~{resultName}
+    >>> 
+
+    output {
+    File filteredBam = "~{resultName}"
+    }
+
+    meta {
+    output_meta: {
+        filteredBam: "Filtered BAM file"
+    }
+    }
+
+    runtime {
+    modules: "~{modules}"
+    memory:  "~{allocatedMemory} GB"
+    cpu:     "~{threads}"
+    timeout: "~{timeout}"
+    }
+
+}
+
 task runMosdepth {
 
     input {
@@ -1196,6 +1393,44 @@ task runMosdepth {
     }
   }
 
+}
+
+task splitStringToArray {
+  input {
+    String str
+    String lineSeparator = ","
+    String recordSeparator = "+"
+    Int jobMemory = 1
+    Int cores = 1
+    Int timeout = 1
+    String modules = ""
+  }
+
+  command <<<
+    set -euo pipefail
+    echo "~{str}" | tr '~{lineSeparator}' '\n' | tr '~{recordSeparator}' '\t'
+  >>>
+
+  output {
+    Array[Array[String]] out = read_tsv(stdout())
+  }
+
+  runtime {
+    memory: "~{jobMemory} GB"
+    cpu: "~{cores}"
+    timeout: "~{timeout}"
+    modules: "~{modules}"
+  }
+
+  parameter_meta {
+    str: "Interval string to split (e.g. chr1,chr2,chr3+chr4)."
+    lineSeparator: "Interval group separator - these are the intervals to split by."
+    recordSeparator: "Record separator - a delimiter for joining records"
+    jobMemory: "Memory allocated to job (in GB)."
+    cores: "The number of cores to allocate to the job."
+    timeout: "Maximum amount of time (in hours) the task can run for."
+    modules: "Environment module name and version to load (space separated) before command execution."
+  }
 }
 
 task updateMetadata {
