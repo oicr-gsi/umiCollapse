@@ -1,3 +1,6 @@
+## 1.0.8 -2024-04-10
+- Expand librray type in vidarrbuild file
+
 ## 1.0.7 - 2024-04-03
 - Update subworkflows bamQC and bwaMem to new version
 

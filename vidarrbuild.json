@@ -1,7 +1,8 @@
 {
     "names": [
         "umiCollapse_TS",
-	"umiCollapse_CM"
+        "umiCollapse_CM",
+        "umiCollapse"
     ],
     "wdl": "umiCollapse.wdl"
 }
