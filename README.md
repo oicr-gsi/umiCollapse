@@ -272,7 +272,8 @@ This section lists command(s) run by umiCollapse workflow
       umiLengths=($(tr ' ' '\n' ``` "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
       printf "%s\n" "${umiLengths[@]}"
 
-  ```
+ ```
+
 ```
 
             barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
@@ -284,7 +285,8 @@ This section lists command(s) run by umiCollapse workflow
             tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
             echo "{$(sort -i tmp.txt)}" > new.txt
             tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
-        ```
+```
+
 ```
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
         samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
@@ -297,11 +299,12 @@ This section lists command(s) run by umiCollapse workflow
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
-    ```
+```
+
 ```        
         set -euo pipefail
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
-    ```
+```
 ```
         set -euo pipefail
         statsEditDistances=(~{sep=" " statsEditDistances})

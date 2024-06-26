@@ -161,7 +161,7 @@ workflow bamQC {
         mode: "running mode for the workflow, only allow value 'lane_level' and 'call_ready'"
         intervalsToParallelizeByString: "Comma separated list of intervals to split by (e.g. chr1,chr2,chr3,chr4)."
         inputGroups: "Array of objects describing sets of bams to merge together and on which to compute QC metrics"
-        splitStringToArray_lineSeparator: "Interval group separator - these are the intervals to split by."
+        splitStringToArray_lineSeparator: "Interval group separator - these are the intervals to split by"
         splitStringToArray_recordSeparator: "Record separator - a delimiter for joining records"
         splitStringToArray_jobMemory: "Memory allocated to job (in GB)."
         splitStringToArray_cores: "The number of cores to allocate to the job."
@@ -1279,6 +1279,17 @@ task splitStringToArray {
     String modules = ""
   }
 
+  parameter_meta {
+    str: "Interval string to split (e.g. chr1,chr2,chr3+chr4)."
+    lineSeparator: "Interval group separator - these are the intervals to split by."
+    recordSeparator: "Record separator - a delimiter for joining records"
+    jobMemory: "Memory allocated to job (in GB)."
+    cores: "The number of cores to allocate to the job."
+    timeout: "Maximum amount of time (in hours) the task can run for."
+    modules: "Environment module name and version to load (space separated) before command execution."
+  }
+
+
   command <<<
     set -euo pipefail
     echo "~{str}" | tr '~{lineSeparator}' '\n' | tr '~{recordSeparator}' '\t'
@@ -1295,15 +1306,6 @@ task splitStringToArray {
     modules: "~{modules}"
   }
 
-  parameter_meta {
-    str: "Interval string to split (e.g. chr1,chr2,chr3+chr4)."
-    lineSeparator: "Interval group separator - these are the intervals to split by."
-    recordSeparator: "Record separator - a delimiter for joining records"
-    jobMemory: "Memory allocated to job (in GB)."
-    cores: "The number of cores to allocate to the job."
-    timeout: "Maximum amount of time (in hours) the task can run for."
-    modules: "Environment module name and version to load (space separated) before command execution."
-  }
 }
 
 task updateMetadata {
