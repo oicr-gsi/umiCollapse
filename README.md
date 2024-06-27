@@ -17,7 +17,8 @@ The incorporation of Unique Molecular Indices (UMIs) into sequenced reads allows
 * [gsi hg19 modules:  hg19-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [gsi mm10 modules:  mm10-bwa-index 0.7.12](https://gitlab.oicr.on.ca/ResearchIT/modulator)
 * [bam-qc-metrics 0.2.5](https://github.com/oicr-gsi/bam-qc-metrics.git)
-
+* [bwaMem 2.2.1](https://github.com/oicr-gsi/bwaMem)
+* [bamQC 5.1.3](https://github.com/oicr-gsi/bamQC)
 
 ## Usage
 
@@ -36,6 +37,8 @@ Parameter|Value|Description
 `pattern1`|String|UMI pattern 1
 `pattern2`|String|UMI pattern 2
 `reference`|String|Name and version of reference genome
+`mode`|String|running mode for the workflow, only allow value 'lane_level' and 'call_ready'
+`bwaMem.reference`|String|The genome reference build. For example: hg19, hg38, mm10
 `preDedupBamQC.bamQCMetrics_workflowVersion`|String|Workflow version string
 `preDedupBamQC.bamQCMetrics_refSizesBed`|String|Path to human genome BED reference with chromosome sizes
 `preDedupBamQC.bamQCMetrics_refFasta`|String|Path to human genome FASTA reference
@@ -44,7 +47,6 @@ Parameter|Value|Description
 `postDedupBamQC.bamQCMetrics_refSizesBed`|String|Path to human genome BED reference with chromosome sizes
 `postDedupBamQC.bamQCMetrics_refFasta`|String|Path to human genome FASTA reference
 `postDedupBamQC.metadata`|Map[String,String]|JSON file containing metadata
-`mode`|String|Running mode for the workflow, only allow value 'lane_level' and 'call_ready'
 
 
 #### Optional workflow parameters:
@@ -76,7 +78,20 @@ Parameter|Value|Default|Description
 `bwaMem.adapterTrimming_timeout`|Int|48|Hours before task timeout
 `bwaMem.adapterTrimming_jobMemory`|Int|16|Memory allocated for this job
 `bwaMem.adapterTrimming_addParam`|String?|None|Additional cutadapt parameters
+`bwaMem.adapterTrimming_adapter2`|String|"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"|Adapter sequence to trim from read 2
+`bwaMem.adapterTrimming_adapter1`|String|"AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"|Adapter sequence to trim from read 1
+`bwaMem.adapterTrimming_trimMinQuality`|Int|0|Minimum quality of read ends to keep
+`bwaMem.adapterTrimming_trimMinLength`|Int|1|Minimum length of reads to keep
+`bwaMem.adapterTrimming_umiLength`|Int|5|The number of bases to trim when doUMItrim is true. If the given length is positive, the bases are removed from the beginning of each read. If it is negative, the bases are removed from the end
+`bwaMem.adapterTrimming_doUMItrim`|Boolean|false|If true, do umi trimming
 `bwaMem.adapterTrimming_modules`|String|"cutadapt/1.8.3"|Required environment modules
+`bwaMem.extractUMIs_timeout`|Int|12|Time in hours before task timeout
+`bwaMem.extractUMIs_jobMemory`|Int|24|Memory allocated for this job
+`bwaMem.extractUMIs_modules`|String|"barcodex-rs/0.1.2 rust/1.45.1"|Required environment modules
+`bwaMem.extractUMIs_pattern2`|String|"(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)"|UMI RegEx pattern 2
+`bwaMem.extractUMIs_pattern1`|String|"(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)"|UMI RegEx pattern 1
+`bwaMem.extractUMIs_outputPrefix`|String|"extractUMIs_output"|Specifies the start of the output files
+`bwaMem.extractUMIs_umiList`|String|"umiList"|Reference file with valid UMIs
 `bwaMem.slicerR2_timeout`|Int|48|Hours before task timeout
 `bwaMem.slicerR2_jobMemory`|Int|16|Memory allocated for this job
 `bwaMem.slicerR2_modules`|String|"slicer/0.3.0"|Required environment modules
@@ -85,12 +100,11 @@ Parameter|Value|Default|Description
 `bwaMem.slicerR1_modules`|String|"slicer/0.3.0"|Required environment modules
 `bwaMem.countChunkSize_timeout`|Int|48|Hours before task timeout
 `bwaMem.countChunkSize_jobMemory`|Int|16|Memory allocated for this job
-`bwaMem.numChunk`|Int|1|number of chunks to split fastq file [1, no splitting]
-`bwaMem.doTrim`|Boolean|false|if true, adapters will be trimmed before alignment
-`bwaMem.trimMinLength`|Int|1|minimum length of reads to keep [1]
-`bwaMem.trimMinQuality`|Int|0|minimum quality of read ends to keep [0]
-`bwaMem.adapter1`|String|"AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC"|adapter sequence to trim from read 1 [AGATCGGAAGAGCACACGTCTGAACTCCAGTCAC]
-`bwaMem.adapter2`|String|"AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT"|adapter sequence to trim from read 2 [AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT]
+`bwaMem.countChunkSize_modules`|String|"python/3.7"|Required environment modules
+`bwaMem.numChunk`|Int|1|Number of chunks to split fastq file [1, no splitting]
+`bwaMem.doUMIextract`|Boolean|false|If true, UMI will be extracted before alignment [false]
+`bwaMem.doTrim`|Boolean|false|If true, adapters will be trimmed before alignment [false]
+`bwaMem.numReads`|Int?|None|Number of reads
 `mergeLibrary.modules`|String|"samtools/1.9"|Required environment modules
 `mergeLibrary.memory`|Int|24|Memory allocated for indexing job
 `mergeLibrary.timeout`|Int|6|Hours before task timeout
@@ -120,11 +134,11 @@ Parameter|Value|Default|Description
 `preDedupBamQC.downsampleRegion_timeout`|Int|4|hours before task timeout
 `preDedupBamQC.downsampleRegion_threads`|Int|4|Requested CPU threads
 `preDedupBamQC.downsampleRegion_jobMemory`|Int|16|Memory allocated for this job
-`preDedupBamQC.downsampleRegion_modules`|String|"samtools/1.9"|required environment modules
+`preDedupBamQC.downsampleRegion_modules`|String|"samtools/1.14"|required environment modules
 `preDedupBamQC.downsample_timeout`|Int|4|hours before task timeout
 `preDedupBamQC.downsample_threads`|Int|4|Requested CPU threads
 `preDedupBamQC.downsample_jobMemory`|Int|16|Memory allocated for this job
-`preDedupBamQC.downsample_modules`|String|"samtools/1.9"|required environment modules
+`preDedupBamQC.downsample_modules`|String|"samtools/1.14"|required environment modules
 `preDedupBamQC.downsample_randomSeed`|Int|42|Random seed for pre-downsampling (if any)
 `preDedupBamQC.downsample_downsampleSuffix`|String|"downsampled.bam"|Suffix for output file
 `preDedupBamQC.findDownsampleParamsMarkDup_timeout`|Int|4|hours before task timeout
@@ -145,14 +159,6 @@ Parameter|Value|Default|Description
 `preDedupBamQC.findDownsampleParams_minReadsRelative`|Int|2|Minimum value of (inputReads)/(targetReads) to allow pre-downsampling
 `preDedupBamQC.findDownsampleParams_minReadsAbsolute`|Int|10000|Minimum value of targetReads to allow pre-downsampling
 `preDedupBamQC.findDownsampleParams_targetReads`|Int|100000|Desired number of reads in downsampled output
-`preDedupBamQC.indexBamFile_timeout`|Int|4|hours before task timeout
-`preDedupBamQC.indexBamFile_threads`|Int|4|Requested CPU threads
-`preDedupBamQC.indexBamFile_jobMemory`|Int|16|Memory allocated for this job
-`preDedupBamQC.indexBamFile_modules`|String|"samtools/1.9"|required environment modules
-`preDedupBamQC.countInputReads_timeout`|Int|4|hours before task timeout
-`preDedupBamQC.countInputReads_threads`|Int|4|Requested CPU threads
-`preDedupBamQC.countInputReads_jobMemory`|Int|16|Memory allocated for this job
-`preDedupBamQC.countInputReads_modules`|String|"samtools/1.9"|required environment modules
 `preDedupBamQC.updateMetadata_timeout`|Int|4|hours before task timeout
 `preDedupBamQC.updateMetadata_threads`|Int|4|Requested CPU threads
 `preDedupBamQC.updateMetadata_jobMemory`|Int|16|Memory allocated for this job
@@ -160,11 +166,43 @@ Parameter|Value|Default|Description
 `preDedupBamQC.filter_timeout`|Int|4|hours before task timeout
 `preDedupBamQC.filter_threads`|Int|4|Requested CPU threads
 `preDedupBamQC.filter_jobMemory`|Int|16|Memory allocated for this job
-`preDedupBamQC.filter_modules`|String|"samtools/1.9"|required environment modules
+`preDedupBamQC.filter_modules`|String|"samtools/1.14"|required environment modules
 `preDedupBamQC.filter_minQuality`|Int|30|Minimum alignment quality to pass filter
+`preDedupBamQC.mergeFiles_modules`|String|"gatk/4.1.6.0"|Environment module name and version to load (space separated) before command execution.
+`preDedupBamQC.mergeFiles_timeout`|Int|24|Maximum amount of time (in hours) the task can run for.
+`preDedupBamQC.mergeFiles_cores`|Int|1|The number of cores to allocate to the job.
+`preDedupBamQC.mergeFiles_overhead`|Int|6|Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory.
+`preDedupBamQC.mergeFiles_jobMemory`|Int|24|Memory allocated to job (in GB).
+`preDedupBamQC.mergeFiles_suffix`|String|".merge"|suffix to use for merged bam
+`preDedupBamQC.mergeSplitByIntervalFiles_modules`|String|"gatk/4.1.6.0"|Environment module name and version to load (space separated) before command execution.
+`preDedupBamQC.mergeSplitByIntervalFiles_timeout`|Int|24|Maximum amount of time (in hours) the task can run for.
+`preDedupBamQC.mergeSplitByIntervalFiles_cores`|Int|1|The number of cores to allocate to the job.
+`preDedupBamQC.mergeSplitByIntervalFiles_overhead`|Int|6|Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory.
+`preDedupBamQC.mergeSplitByIntervalFiles_jobMemory`|Int|24|Memory allocated to job (in GB).
+`preDedupBamQC.mergeSplitByIntervalFiles_suffix`|String|".merge"|suffix to use for merged bam
+`preDedupBamQC.preFilter_timeout`|Int|4|hours before task timeout
+`preDedupBamQC.preFilter_threads`|Int|4|Requested CPU threads
+`preDedupBamQC.preFilter_minMemory`|Int|2|Minimum amount of RAM allocated to the task
+`preDedupBamQC.preFilter_jobMemory`|Int|6|Memory allocated for this job
+`preDedupBamQC.preFilter_modules`|String|"samtools/1.14"|required environment modules
+`preDedupBamQC.preFilter_filterAdditionalParams`|String?|None|Additional parameters to pass to samtools.
+`preDedupBamQC.preFilter_minMapQuality`|Int?|None|Minimum alignment quality to pass filter
+`preDedupBamQC.preFilter_filterFlags`|Int|260|Samtools filter flags to apply.
+`preDedupBamQC.getChrCoefficient_modules`|String|"samtools/1.14"|Names and versions of modules to load
+`preDedupBamQC.getChrCoefficient_timeout`|Int|1|Hours before task timeout
+`preDedupBamQC.getChrCoefficient_memory`|Int|2|Memory allocated for this job
+`preDedupBamQC.splitStringToArray_modules`|String|""|Environment module name and version to load (space separated) before command execution.
+`preDedupBamQC.splitStringToArray_timeout`|Int|1|Maximum amount of time (in hours) the task can run for.
+`preDedupBamQC.splitStringToArray_cores`|Int|1|The number of cores to allocate to the job.
+`preDedupBamQC.splitStringToArray_jobMemory`|Int|1|Memory allocated to job (in GB).
+`preDedupBamQC.splitStringToArray_recordSeparator`|String|"+"|Record separator - a delimiter for joining records
+`preDedupBamQC.splitStringToArray_lineSeparator`|String|","|Interval group separator - these are the intervals to split by.
+`preDedupBamQC.intervalsToParallelizeByString`|String|"chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY,chrM"|Comma separated list of intervals to split by (e.g. chr1,chr2,chr3,chr4).
 `bamSplitDeduplication.modules`|String|"umi-tools/1.0.0 samtools/1.9"|Required environment modules
 `bamSplitDeduplication.memory`|Int|24|Memory allocated for this job
 `bamSplitDeduplication.timeout`|Int|6|Time in hours before task timeout
+`bamSplitDeduplication.method`|String|"directional"|What method to use to identify group of reads with the same (or similar) UMI(s)?
+`bamSplitDeduplication.editDistanceThreshold`|Int|1|Parametr for the adjacency and cluster methods, the threshold for the edit distance to connect two UMIs in the network.
 `bamMerge.modules`|String|"samtools/1.9"|Required environment modules
 `bamMerge.memory`|Int|24|Memory allocated for indexing job
 `bamMerge.timeout`|Int|6|Hours before task timeout
@@ -194,11 +232,11 @@ Parameter|Value|Default|Description
 `postDedupBamQC.downsampleRegion_timeout`|Int|4|hours before task timeout
 `postDedupBamQC.downsampleRegion_threads`|Int|4|Requested CPU threads
 `postDedupBamQC.downsampleRegion_jobMemory`|Int|16|Memory allocated for this job
-`postDedupBamQC.downsampleRegion_modules`|String|"samtools/1.9"|required environment modules
+`postDedupBamQC.downsampleRegion_modules`|String|"samtools/1.14"|required environment modules
 `postDedupBamQC.downsample_timeout`|Int|4|hours before task timeout
 `postDedupBamQC.downsample_threads`|Int|4|Requested CPU threads
 `postDedupBamQC.downsample_jobMemory`|Int|16|Memory allocated for this job
-`postDedupBamQC.downsample_modules`|String|"samtools/1.9"|required environment modules
+`postDedupBamQC.downsample_modules`|String|"samtools/1.14"|required environment modules
 `postDedupBamQC.downsample_randomSeed`|Int|42|Random seed for pre-downsampling (if any)
 `postDedupBamQC.downsample_downsampleSuffix`|String|"downsampled.bam"|Suffix for output file
 `postDedupBamQC.findDownsampleParamsMarkDup_timeout`|Int|4|hours before task timeout
@@ -219,14 +257,6 @@ Parameter|Value|Default|Description
 `postDedupBamQC.findDownsampleParams_minReadsRelative`|Int|2|Minimum value of (inputReads)/(targetReads) to allow pre-downsampling
 `postDedupBamQC.findDownsampleParams_minReadsAbsolute`|Int|10000|Minimum value of targetReads to allow pre-downsampling
 `postDedupBamQC.findDownsampleParams_targetReads`|Int|100000|Desired number of reads in downsampled output
-`postDedupBamQC.indexBamFile_timeout`|Int|4|hours before task timeout
-`postDedupBamQC.indexBamFile_threads`|Int|4|Requested CPU threads
-`postDedupBamQC.indexBamFile_jobMemory`|Int|16|Memory allocated for this job
-`postDedupBamQC.indexBamFile_modules`|String|"samtools/1.9"|required environment modules
-`postDedupBamQC.countInputReads_timeout`|Int|4|hours before task timeout
-`postDedupBamQC.countInputReads_threads`|Int|4|Requested CPU threads
-`postDedupBamQC.countInputReads_jobMemory`|Int|16|Memory allocated for this job
-`postDedupBamQC.countInputReads_modules`|String|"samtools/1.9"|required environment modules
 `postDedupBamQC.updateMetadata_timeout`|Int|4|hours before task timeout
 `postDedupBamQC.updateMetadata_threads`|Int|4|Requested CPU threads
 `postDedupBamQC.updateMetadata_jobMemory`|Int|16|Memory allocated for this job
@@ -234,8 +264,38 @@ Parameter|Value|Default|Description
 `postDedupBamQC.filter_timeout`|Int|4|hours before task timeout
 `postDedupBamQC.filter_threads`|Int|4|Requested CPU threads
 `postDedupBamQC.filter_jobMemory`|Int|16|Memory allocated for this job
-`postDedupBamQC.filter_modules`|String|"samtools/1.9"|required environment modules
+`postDedupBamQC.filter_modules`|String|"samtools/1.14"|required environment modules
 `postDedupBamQC.filter_minQuality`|Int|30|Minimum alignment quality to pass filter
+`postDedupBamQC.mergeFiles_modules`|String|"gatk/4.1.6.0"|Environment module name and version to load (space separated) before command execution.
+`postDedupBamQC.mergeFiles_timeout`|Int|24|Maximum amount of time (in hours) the task can run for.
+`postDedupBamQC.mergeFiles_cores`|Int|1|The number of cores to allocate to the job.
+`postDedupBamQC.mergeFiles_overhead`|Int|6|Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory.
+`postDedupBamQC.mergeFiles_jobMemory`|Int|24|Memory allocated to job (in GB).
+`postDedupBamQC.mergeFiles_suffix`|String|".merge"|suffix to use for merged bam
+`postDedupBamQC.mergeSplitByIntervalFiles_modules`|String|"gatk/4.1.6.0"|Environment module name and version to load (space separated) before command execution.
+`postDedupBamQC.mergeSplitByIntervalFiles_timeout`|Int|24|Maximum amount of time (in hours) the task can run for.
+`postDedupBamQC.mergeSplitByIntervalFiles_cores`|Int|1|The number of cores to allocate to the job.
+`postDedupBamQC.mergeSplitByIntervalFiles_overhead`|Int|6|Java overhead memory (in GB). jobMemory - overhead == java Xmx/heap memory.
+`postDedupBamQC.mergeSplitByIntervalFiles_jobMemory`|Int|24|Memory allocated to job (in GB).
+`postDedupBamQC.mergeSplitByIntervalFiles_suffix`|String|".merge"|suffix to use for merged bam
+`postDedupBamQC.preFilter_timeout`|Int|4|hours before task timeout
+`postDedupBamQC.preFilter_threads`|Int|4|Requested CPU threads
+`postDedupBamQC.preFilter_minMemory`|Int|2|Minimum amount of RAM allocated to the task
+`postDedupBamQC.preFilter_jobMemory`|Int|6|Memory allocated for this job
+`postDedupBamQC.preFilter_modules`|String|"samtools/1.14"|required environment modules
+`postDedupBamQC.preFilter_filterAdditionalParams`|String?|None|Additional parameters to pass to samtools.
+`postDedupBamQC.preFilter_minMapQuality`|Int?|None|Minimum alignment quality to pass filter
+`postDedupBamQC.preFilter_filterFlags`|Int|260|Samtools filter flags to apply.
+`postDedupBamQC.getChrCoefficient_modules`|String|"samtools/1.14"|Names and versions of modules to load
+`postDedupBamQC.getChrCoefficient_timeout`|Int|1|Hours before task timeout
+`postDedupBamQC.getChrCoefficient_memory`|Int|2|Memory allocated for this job
+`postDedupBamQC.splitStringToArray_modules`|String|""|Environment module name and version to load (space separated) before command execution.
+`postDedupBamQC.splitStringToArray_timeout`|Int|1|Maximum amount of time (in hours) the task can run for.
+`postDedupBamQC.splitStringToArray_cores`|Int|1|The number of cores to allocate to the job.
+`postDedupBamQC.splitStringToArray_jobMemory`|Int|1|Memory allocated to job (in GB).
+`postDedupBamQC.splitStringToArray_recordSeparator`|String|"+"|Record separator - a delimiter for joining records
+`postDedupBamQC.splitStringToArray_lineSeparator`|String|","|Interval group separator - these are the intervals to split by.
+`postDedupBamQC.intervalsToParallelizeByString`|String|"chr1,chr2,chr3,chr4,chr5,chr6,chr7,chr8,chr9,chr10,chr11,chr12,chr13,chr14,chr15,chr16,chr17,chr18,chr19,chr20,chr21,chr22,chrX,chrY,chrM"|Comma separated list of intervals to split by (e.g. chr1,chr2,chr3,chr4).
 `statsMerge.memory`|Int|16|Memory allocated for this job
 
 
@@ -255,8 +315,9 @@ This section lists command(s) run by umiCollapse workflow
 
 * Running umiCollapse
 
-```
 
+```
+      set -euo pipefail
       k=($(awk '{ match($1, "([ACTG])+"); print RLENGTH }' ~{umiList} | uniq))
 
       for i in ${k[@]}
@@ -272,10 +333,9 @@ This section lists command(s) run by umiCollapse workflow
       umiLengths=($(tr ' ' '\n' ``` "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
       printf "%s\n" "${umiLengths[@]}"
 
- ```
-
 ```
-
+```
+            set -euo pipefail
             barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
             --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
             --pattern2 '~{pattern2}' --r2-in ~{fastq2} 
@@ -285,9 +345,11 @@ This section lists command(s) run by umiCollapse workflow
             tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
             echo "{$(sort -i tmp.txt)}" > new.txt
             tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
+
 ```
 
 ```
+        set -euo pipefail
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
         samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
         samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
@@ -299,12 +361,14 @@ This section lists command(s) run by umiCollapse workflow
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
+
 ```
 
 ```        
-        set -euo pipefail
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
+        samtools index "~{outputPrefix}.dedup.bam"
 ```
+
 ```
         set -euo pipefail
         statsEditDistances=(~{sep=" " statsEditDistances})

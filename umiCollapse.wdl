@@ -102,6 +102,14 @@ workflow umiCollapse {
             {
                 name: "bam-qc-metrics/0.2.5",
                 url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
+            },
+            {
+                name: "bwaMem 2.2.1",
+                url: "https://github.com/oicr-gsi/bwaMem"
+            },
+            {
+                name: "bamQC 5.1.3",
+                url: "https://github.com/oicr-gsi/bamQC"
             }
 
         ]
@@ -164,10 +172,8 @@ workflow umiCollapse {
                 input:
                     fastqR1 = extractUMIs.fastqR1,
                     fastqR2 = extractUMIs.fastqR2,
-                    readGroups = fq.readGroups,
-                    outputFileNamePrefix = outputPrefix,
-                    runBwaMem_bwaRef = resources[reference].bwaMem_runBwaMem_bwaRef,
-                    runBwaMem_modules = resources[reference].bwaMem_runBwaMem_modules
+                    runBwaMem_readGroups = fq.readGroups,
+                    outputFileNamePrefix = outputPrefix
             }
     }
 
