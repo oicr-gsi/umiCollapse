@@ -113,14 +113,32 @@ workflow umiCollapse {
             }
 
         ]
-        output_meta: {
-            deduplicatedBam: "Bam file after deduplication",
-            statsEditDistance: "tsv file reports the (binned) average edit distance between the UMIs at each position",
-            umiCountsPerPosition: "tsv file tabulates the counts for unique combinations of UMI and position",
-            umiCounts: "tsv file provides UMI-level summary statistics",
-            preDedupBamMetrics: "pre-collapse bamqc metrics",
-            postDedupBamMetrics: "post-collapse bamqc metrics"
-        }
+    output_meta: {
+    deduplicatedBam: {
+        description: "Bam file after deduplication",
+        vidarr_label: "deduplicatedBam"
+    },
+    statsEditDistance: {
+        description: "tsv file reports the (binned) average edit distance between the UMIs at each position",
+        vidarr_label: "statsEditDistance"
+    },
+    umiCountsPerPosition: {
+        description: "tsv file tabulates the counts for unique combinations of UMI and position",
+        vidarr_label: "umiCountsPerPosition"
+    },
+    umiCounts: {
+        description: "tsv file provides UMI-level summary statistics",
+        vidarr_label: "umiCounts"
+    },
+    preDedupBamMetrics: {
+        description: "pre-collapse bamqc metrics",
+        vidarr_label: "preDedupBamMetrics"
+    },
+    postDedupBamMetrics: {
+        description: "post-collapse bamqc metrics",
+        vidarr_label: "postDedupBamMetrics"
+    }
+}
     }
 
     output {

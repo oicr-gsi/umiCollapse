@@ -345,7 +345,9 @@ This section lists command(s) run by umiCollapse workflow
             tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
             echo "{$(sort -i tmp.txt)}" > new.txt
             tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
-      
+
+```
+
 ```
         set -euo pipefail
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
@@ -359,11 +361,14 @@ This section lists command(s) run by umiCollapse workflow
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
-  ```
+
+```
+
 ```        
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
         samtools index "~{outputPrefix}.dedup.bam"
-  ```
+```
+
 ```
         set -euo pipefail
         statsEditDistances=(~{sep=" " statsEditDistances})
@@ -407,7 +412,8 @@ This section lists command(s) run by umiCollapse workflow
             cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > ~{outputPrefix}.umiCounts.tsv
             i=$(( $i+1 ))
         done
-  ```
+```
+
 ## Support
 
 For support, please file an issue on the [Github project](https://github.com/oicr-gsi) or send an email to gsi@oicr.on.ca .
