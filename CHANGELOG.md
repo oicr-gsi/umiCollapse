@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - [GRD-797](https://jira.oicr.on.ca/browse/GRD-797) - Add vidarr labels to outputs (changes to medata only)
 
-## [1.0.8] -2024-04-10
+## [1.0.8] - 2024-04-10
 ### Changed
 - Expand librray type in vidarrbuild file
 
