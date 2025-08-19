@@ -193,8 +193,8 @@
             "umiCollapse.postDedupBamQC.markDuplicates_threads": null,
             "umiCollapse.postDedupBamQC.markDuplicates_timeout": null,
             "umiCollapse.postDedupBamQC.metadata": {
-                "donor": "KLCS_0020",
-                "group id": "BBCGP_4042_105377_LIB-16-0007_813570_Pl_1",
+                "donor": "KLCS_Test",
+                "group id": "BBCGP_1",
                 "library design": "TS",
                 "tissue origin": "Ct",
                 "tissue type": "T"
@@ -271,8 +271,8 @@
             "umiCollapse.preDedupBamQC.markDuplicates_threads": null,
             "umiCollapse.preDedupBamQC.markDuplicates_timeout": null,
             "umiCollapse.preDedupBamQC.metadata": {
-                "donor": "BIOLICAN_0071",
-                "group id": "230313_M00753_0547",
+                "donor": "BIOLICAN_Test",
+                "group id": "230313",
                 "library design": "TS",
                 "tissue origin": "Ct",
                 "tissue type": "T"
@@ -290,7 +290,7 @@
                 {
                     "fastq1": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/452a/31bd/8bef/452a31bd8bef5ff9010c8c3540b94d49049b5fe71271ed7295d19fd275195ac2/BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT_R1.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test01_R1.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -302,7 +302,7 @@
                     },
                     "fastq2": {
                         "contents": {
-                            "configuration": "/.mounts/labs/prod/vidarr/output-research/452a/31bd/8bef/452a31bd8bef5ff9010c8c3540b94d49049b5fe71271ed7295d19fd275195ac2/BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test01_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -312,12 +312,12 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230313_M00753_0547_000000000-DKH4N_1\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:2230313_M00753_0547_000000000-DKH4N_1_ATGCCTGT-CGCAATCT\\tSM:BIOLICAN_0071_01_LB01-01'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_Test_1\\tLB:BIOLICAN-01\\tPL:illumina\\tPU:Test-1\\tSM:BIOLICAN_Test-01'"
                 },
                 {
                     "fastq1": {
                         "contents": {
-                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test02_R1.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -329,7 +329,7 @@
                     },
                     "fastq2": {
                         "contents": {
-                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test02_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -339,12 +339,12 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230324_A00469_0454_AHGJK2DSX5_3\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:230324_A00469_0454_AHGJK2DSX5_3_ATGCCTGT-AGATTGCG\\tSM:BIOLICAN_0071_01_LB01-01'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_Test_2\\tLB:BIOLICAN-02\\tPL:illumina\\tPU:Test-2\\tSM:BIOLICAN_Test-02'"
                 },
                 {
                     "fastq1": {
                         "contents": {
-                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R1.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test03_R1.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -356,7 +356,7 @@
                     },
                     "fastq2": {
                         "contents": {
-                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG_R2.fastq.gz",
+                            "configuration": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/Test03_R2.fastq.gz",
                             "externalIds": [
                                 {
                                     "id": "TEST",
@@ -366,14 +366,14 @@
                         },
                         "type": "EXTERNAL"
                     },
-                    "readGroups": "'@RG\\tID:BIOLICAN_0071_01_LB01-01_230424_A00469_0470_BHWT53DSX5_3\\tLB:BIOLICAN_0071_01_LB01-01\\tPL:illumina\\tPU:230424_A00469_0470_BHWT53DSX5_3_ATGCCTGT-AGATTGCG\\tSM:BIOLICAN_0071_01_LB01-01'"
+                    "readGroups": "'@RG\\tID:BIOLICAN_Test_3\\tLB:BIOLICAN-03\\tPL:illumina\\tPU:Test-3\\tSM:BIOLICAN_Test-03'"
                 }
             ],
             "umiCollapse.outputPrefix": "test2",
             "umiCollapse.reference": "hg19",
             "umiCollapse.pattern1": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
             "umiCollapse.pattern2": "(?P<umi_1>^[ACGT]{3}[ACG])(?P<discard_1>T)|(?P<umi_2>^[ACGT]{3})(?P<discard_2>T)",
-            "umiCollapse.umiList": "/.mounts/labs/gsi/testdata/umiCollapse/inputs/IDT_true_barcodes.txt"
+            "umiCollapse.umiList": "/.mounts/labs/gsi/testdata/umiCollapse/test_inputs/IDT_true_barcodes.txt"
         },
         "engineArguments": {
             "write_to_cache": false,
@@ -433,7 +433,7 @@
             {
                 "metrics_calculate": "@CHECKOUT@/tests/calculate.sh",
                 "metrics_compare": "@CHECKOUT@/tests/compare.sh",
-                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.7/umiCollapse_dataset2.metrics",
+                "output_metrics": "/.mounts/labs/gsi/testdata/umiCollapse/output_metrics/1.0.7/workflow_test_01.metrics",
                 "type": "script"
             }
         ]
