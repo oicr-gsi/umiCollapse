@@ -4,6 +4,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.0] - 2026-07-19
+- [GC-11475](https://jira.oicr.on.ca/browse/GC-11475) - Updated to use bwamem2 and fix bug in task bamSplitDeduplication
+
 ## [1.1.2] - 2026-06-01
 - [GRD-1175](https://jira.oicr.on.ca/browse/GRD-1175) - Add hg38_noAlt support
 

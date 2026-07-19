@@ -1,12 +1,7 @@
 version 1.0
 
-import "imports/pull_bwaMem.wdl" as bwaMem
+import "imports/pull_bwamem2.wdl" as bwamem2
 import "imports/pull_bamQC.wdl" as bamQC
-
-struct GenomeResources {
-    String bwaMem_runBwaMem_bwaRef
-    String bwaMem_runBwaMem_modules
-}
 
 struct FastqInputs {
     File fastq1
@@ -25,25 +20,6 @@ workflow umiCollapse {
         Boolean doBamQC = false
         Boolean provisionBam = true
         String mode
-    }
-
-    Map[String, GenomeResources] resources = {
-    "hg19": {
-        "bwaMem_runBwaMem_bwaRef": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
-        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg19-bwa-index/0.7.12"
-    },
-    "hg38": {
-        "bwaMem_runBwaMem_bwaRef": "$HG38_BWA_INDEX_ROOT/hg38_random.fa",
-        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 hg38-bwa-index/0.7.12"
-    },
-    "hg38_noAlt": {
-        "bwaMem_runBwaMem_bwaRef": "$HG38_BWA_INDEX_NOALT_ROOT/hg38_noAlt.fa",
-        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.17 hg38-bwa-index-noalt/0.7.17"
-    },
-    "mm10": {
-        "bwaMem_runBwaMem_bwaRef": "$MM10_BWA_INDEX_ROOT/mm10.fa", 
-        "bwaMem_runBwaMem_modules": "samtools/1.9 bwa/0.7.12 mm10-bwa-index/0.7.12"
-    }
     }
 
     parameter_meta {
@@ -76,10 +52,6 @@ workflow umiCollapse {
                 url: "https://github.com/CGATOxford/UMI-tools/archive/1.1.1.tar.gz"
             },
             {
-                name: "bwa/0.7.12",
-                url: "https://github.com/lh3/bwa/archive/0.7.12.tar.gz"
-            },
-            {
                 name: "samtools/1.9",
                 url: "https://github.com/samtools/samtools/archive/0.1.19.tar.gz"
             },
@@ -88,19 +60,7 @@ workflow umiCollapse {
                 url: "https://www.python.org/downloads/"
             },
             { 
-                name: "gsi software modules : samtools/1.9 bwa/0.7.12",
-                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
-            },
-            {   
-                name: "gsi hg38 modules:  hg38-bwa-index/0.7.12",
-                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
-            },
-            {   
-                name: "gsi hg19 modules:  hg19-bwa-index/0.7.12",
-                url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
-            },
-            {   
-                name: "gsi mm10 modules:  mm10-bwa-index/0.7.12",
+                name: "gsi software modules : samtools/1.9 bwa-mem2/2.2.1",
                 url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
             },
             {
@@ -108,8 +68,8 @@ workflow umiCollapse {
                 url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
             },
             {
-                name: "bwaMem 2.2.1",
-                url: "https://github.com/oicr-gsi/bwaMem"
+                name: "bwamem2 2.2.1",
+                url: "https://github.com/oicr-gsi/bwamem2"
             },
             {
                 name: "bamQC 5.1.3",
@@ -172,19 +132,20 @@ workflow umiCollapse {
                 pattern1 = pattern1,
                 pattern2 = pattern2
             }
-            call bwaMem.bwaMem {
+            call bwamem2.bwamem2 {
                 input:
                     fastqR1 = extractUMIs.fastqR1,
                     fastqR2 = extractUMIs.fastqR2,
-                    runBwaMem_readGroups = fq.readGroups,
-                    outputFileNamePrefix = outputPrefix
+                    runBwamem2_readGroups = fq.readGroups,
+                    outputFileNamePrefix = outputPrefix,
+                    reference = reference
             }
     }
 
     call bamMerge as mergeLibrary {
         input:
             outputPrefix = outputPrefix,
-            Bams = bwaMem.bwaMemBam
+            Bams = bwamem2.bwamem2Bam
     }
 
     if (doBamQC) {
@@ -218,7 +179,7 @@ workflow umiCollapse {
     if (doBamQC) {
         call bamQC.bamQC as postDedupBamQC {
             input:
-                inputGroups = [{"bam": mergeLibrary.mergedBam, "bamIndex": mergeLibrary.mergedBai}],
+                inputGroups = [{"bam": bamMerge.mergedBam, "bamIndex": bamMerge.mergedBai}],
                 outputFileNamePrefix = "~{outputPrefix}.postDedup",
                 mode = mode
         }
@@ -358,7 +319,7 @@ task bamSplitDeduplication {
     }
 
     parameter_meta {
-        bamFile: "Bam file from bwaMem containing UMIs of varying lengths"
+        bamFile: "Bam file from bwamem2 containing UMIs of varying lengths"
         umiLength: "Specifies the start of the output files"
         outputPrefix: "Specifies the start of the output files"
         modules: "Required environment modules"
@@ -371,12 +332,12 @@ task bamSplitDeduplication {
     command <<<
         set -euo pipefail
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
-        samtools view ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
+        samtools view -F 2304 ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
         samtools view -Sb ~{outputPrefix}.~{umiLength}.sam > ~{outputPrefix}.~{umiLength}.bam
 
         samtools index ~{outputPrefix}.~{umiLength}.bam
 
-        umi_tools dedup -I ~{outputPrefix}.~{umiLength}.bam \
+        umi_tools dedup --paired -I ~{outputPrefix}.~{umiLength}.bam \
         -S deduplicated.bam \
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
