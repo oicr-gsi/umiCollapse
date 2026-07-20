@@ -102,6 +102,8 @@
             "umiCollapse.bwamem2.slicerR2_jobMemory": null,
             "umiCollapse.bwamem2.slicerR2_modules": null,
             "umiCollapse.bwamem2.slicerR2_timeout": null,
+            "umiCollapse.bwamem2.adapterTrimming_adapterTrim": null,
+            "umiCollapse.bwamem2.adapterTrimming_polyGTrim": null,
             "umiCollapse.extractUMIs.memory": null,
             "umiCollapse.extractUMIs.modules": "barcodex-rs/0.1.2 rust/1.45.1",
             "umiCollapse.extractUMIs.timeout": null,
