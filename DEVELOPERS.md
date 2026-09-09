@@ -12,19 +12,20 @@ rm imports.zip
 rm imports/pull_subworkflow.wdl
 ```
 
-4. Replace the old WDL file in /subworkflows/ with the new one
+4. Update the subworkflow submodule to the new version 
+(see [this section](https://wiki.oicr.on.ca/spaces/GSI/pages/146836087/Develop+Wrapper+Workflows+Workflow+of+Workflows#DevelopWrapperWorkflows(WorkflowofWorkflows)-Workingwithgitsubmodules) for more details on updating an existing subworkflow)
 ```
-cp path/to/subworkflow.wdl subworkflows/subworkflow.wdl
+git submodule add git@github.com:oicr-gsi/subworkflow.git subworkflows/subworkflow
 ```
 
-5. Preprocess the new WDL with dockstore_preprocess.py found in [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
+5. update subworkflow "pull" imports WDL using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
 ```
-python3 path/to/gsi-wdl-tools/dockstore_preprocess.py --input-wdl-path path/to/umiCollapse/subworkflows/subworkflow.wdl --pull-all True --output-wdl-path path/to/umiCollapse/imports/pull_subworkflow.wdl
+generate-subworkflow-import --input-wdl subworkflows/subworkflow/subworkflow.wdl --pull-all --output-wdl-path imports/pull_subworkflow.wdl
 ```
 
 6. Make a new imports.zip
 ```
-zip -r path/to/umiCollapse/imports.zip path/to/umiCollapse/imports/
+zip -r -9 path/to/umiCollapse/imports.zip path/to/umiCollapse/imports/
 ```
 
 7. Submit to Cromwell for testing
