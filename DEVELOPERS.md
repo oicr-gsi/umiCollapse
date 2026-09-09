@@ -20,6 +20,7 @@ git submodule add git@github.com:oicr-gsi/subworkflow.git subworkflows/subworkfl
 
 5. update subworkflow "pull" imports WDL using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
 ```
+module load gsi-wdl-tools
 generate-subworkflow-import --input-wdl subworkflows/subworkflow/subworkflow.wdl --pull-all --output-wdl-path imports/pull_subworkflow.wdl
 ```
 
