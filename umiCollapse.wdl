@@ -60,7 +60,7 @@ workflow umiCollapse {
                 url: "https://www.python.org/downloads/"
             },
             { 
-                name: "gsi software modules : samtools/1.9 bwa-mem2/2.2.1",
+                name: "gsi software modules : samtools/1.9 bwa-mem2/1.1.2",
                 url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
             },
             {
@@ -68,7 +68,7 @@ workflow umiCollapse {
                 url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
             },
             {
-                name: "bwamem2 2.2.1",
+                name: "bwamem2 1.1.2",
                 url: "https://github.com/oicr-gsi/bwamem2"
             },
             {

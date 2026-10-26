@@ -3,9 +3,7 @@ This section lists command(s) run by umiCollapse workflow
 
 * Running umiCollapse
 
-=== Description here ===.
-
-<<<
+```
       set -euo pipefail
       k=($(awk '{ match($1, "([ACTG])+"); print RLENGTH }' ~{umiList} | uniq))
 
@@ -19,11 +17,11 @@ This section lists command(s) run by umiCollapse workflow
           done
       done
 
-      umiLengths=($(tr ' ' '\n' <<< "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
+      umiLengths=($(tr ' ' '\n' ``` "${L[@]}" | awk '!u[$0]++' | tr ' ' '\n'))
       printf "%s\n" "${umiLengths[@]}"
 
-  >>>
-<<<
+```
+```
             set -euo pipefail
             barcodex-rs --umilist ~{umiList} --prefix ~{outputPrefix} --separator "__" inline \
             --pattern1 '~{pattern1}' --r1-in ~{fastq1} \
@@ -34,8 +32,8 @@ This section lists command(s) run by umiCollapse workflow
             tr [,] ',\n' < umiCounts.txt | sed 's/[{}]//' > tmp.txt
             echo "{$(sort -i tmp.txt)}" > new.txt
             tr '\n' ',' < new.txt | sed 's/,$//' > ~{outputPrefix}_UMI_counts.json
-        >>>
-<<<
+```
+```
         set -euo pipefail
         samtools view -H ~{bamFile} > ~{outputPrefix}.~{umiLength}.sam
         samtools view -F 2304 ~{bamFile} | grep -P "^.*__\S{~{umiLength}}\t" >> ~{outputPrefix}.~{umiLength}.sam
@@ -48,12 +46,12 @@ This section lists command(s) run by umiCollapse workflow
         --method=~{method} \
         --edit-distance-threshold=~{editDistanceThreshold} \
         --output-stats=deduplicated 
-    >>>
-<<<        
+```
+```        
         samtools merge -c ~{outputPrefix}.dedup.bam ~{sep=" " Bams}
         samtools index "~{outputPrefix}.dedup.bam"
-    >>>
-<<<
+```
+```
         set -euo pipefail
         statsEditDistances=(~{sep=" " statsEditDistances})
         umiCountsPerPositions=(~{sep=" " umiCountsPerPositions})
@@ -96,4 +94,4 @@ This section lists command(s) run by umiCollapse workflow
             cat tmp.tsv <(tail -n +2 ${umiCountsArray[i]}) > ~{outputPrefix}.umiCounts.tsv
             i=$(( $i+1 ))
         done
-    >>>
+```

@@ -1,40 +1,60 @@
 # Update Subworkflow WDLs
 
-1. Edit umiCollapse.wdl to be compatible with the updated subworkflows
-
-2. Delete the old imports.zip
+1. Inspect what subworkflows and versions are being used by the parent workflow
 ```
-rm imports.zip
+git submodule foreach 'git describe --tags'
 ```
 
-3. Delete the old preprocessed WDL from /imports/ (prefixed with "pull_")
+2. Delete the old preprocessed WDL from /imports/, /subworkflows/ and .gitmodules if that specific subworkflow is not needed anymore (e.g. moving from bwaMem to bwamem2 would require deleting bwaMem subworkflow)
 ```
-rm imports/pull_subworkflow.wdl
-```
-
-4. Update the subworkflow submodule to the new version 
-(see [this section](https://wiki.oicr.on.ca/spaces/GSI/pages/146836087/Develop+Wrapper+Workflows+Workflow+of+Workflows#DevelopWrapperWorkflows(WorkflowofWorkflows)-Workingwithgitsubmodules) for more details on updating an existing subworkflow)
-```
-git submodule add git@github.com:oicr-gsi/subworkflow.git subworkflows/subworkflow
+rm imports/pull_<subworkflow>.wdl
+git rm subworkflows/<subworkflow>
 ```
 
-5. update subworkflow "pull" imports WDL using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
+3. Update/Add subworkflows to the workflow as git submodules 
+(Reference: [this section](https://wiki.oicr.on.ca/spaces/GSI/pages/146836087/Develop+Wrapper+Workflows+Workflow+of+Workflows#DevelopWrapperWorkflows(WorkflowofWorkflows)-Workingwithgitsubmodules))
+```
+# For Adding a new subworkflow run
+git submodule add git@github.com:oicr-gsi/<subworkflow>.git subworkflows/<subworkflow>
+
+# For updating an existing subworkflow run
+cd subworkflows/<subworkflow>
+git tag --list
+git checkout <subworkflow tag to be used>
+cd ../..
+```
+
+4. update subworkflow "pull" imports WDL using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
 ```
 module load gsi-wdl-tools
-generate-subworkflow-import --input-wdl subworkflows/subworkflow/subworkflow.wdl --pull-all --output-wdl-path imports/pull_subworkflow.wdl
+generate-subworkflow-import --input-wdl subworkflows/<subworkflow>/<subworkflow>.wdl --pull-all --output-wdl-path imports/pull_<subworkflow>.wdl
 ```
 
-6. Make a new imports.zip
+5. Remove the old imports.zip and make a new imports.zip
 ```
-zip -r -9 path/to/umiCollapse/imports.zip path/to/umiCollapse/imports/
+rm imports.zip
+zip -X -r -9 imports.zip imports/
+```
+6. Edit umiCollapse.wdl to be compatible with the updated subworkflows including adding or removing any stale import "imports/pull_<subworkflow>.wdl" lines. 
+
+7. Run tests 
+```
+ssh shn.hpc.oicr.on.ca
+
+# if you don't have the workflow, make sure to clone it from shn.hpc first, as slurm nodes do not have internet access
+git clone git@github.com:oicr-gsi/umiCollapse.git
+
+salloc --account gsi --mem=4g --time=01:00:00
+cd umiCollapse
+
+# checkout the branch/tag that needs to be tested
+git checkout <branch/tag to be tested>
+
+# run the tests
+/.mounts/labs/gsi/vidarr/test_vidarr_workflow.sh
 ```
 
-7. Submit to Cromwell for testing
+8. Generate a new README using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
 ```
-java -jar $cromwell submit umiCollapse.wdl --inputs path/to/test.json --imports imports.zip --host http://cromwell-dev.hpc.oicr.on.ca:8000
-```
-
-8. Generate a new README using generate-markdown-readme.py also found in [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
-```
-python3 path/to/gsi-wdl-tools/generate_markdown_readme.py --input-wdl-path path/to/umiCollapse/umiCollapse.wdl > README.md
+generate-markdown-readme --input-wdl-path umiCollapse.wdl > README.md
 ```
