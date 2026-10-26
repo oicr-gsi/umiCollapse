@@ -56,5 +56,6 @@ git checkout <branch/tag to be tested>
 
 8. Generate a new README using [gsi-wdl-tools](https://github.com/oicr-gsi/gsi-wdl-tools)
 ```
+module load gsi-wdl-tools
 generate-markdown-readme --input-wdl-path umiCollapse.wdl > README.md
 ```
