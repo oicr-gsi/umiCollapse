@@ -1,6 +1,6 @@
 version 1.0
 
-workflow bwaMem {
+workflow bwamem2 {
     input {
         Int adapterTrimmingLog_timeout = 48
         Int adapterTrimmingLog_jobMemory = 12
@@ -10,11 +10,13 @@ workflow bwaMem {
         Int bamMerge_timeout = 72
         String bamMerge_modules = "samtools/1.9"
         Int bamMerge_jobMemory = 32
-        Int runBwaMem_timeout = 96
-        Int runBwaMem_jobMemory = 32
-        Int runBwaMem_threads = 8
-        String? runBwaMem_addParam
-        String runBwaMem_readGroups
+        Int runBwamem2_timeout = 96
+        Int runBwamem2_jobMemory = 32
+        Int runBwamem2_threads = 8
+        String? runBwamem2_addParam
+        String runBwamem2_readGroups
+        Boolean adapterTrimming_adapterTrim = true
+        Int? adapterTrimming_polyGTrim
         Int adapterTrimming_timeout = 48
         Int adapterTrimming_jobMemory = 16
         String? adapterTrimming_addParam
@@ -60,11 +62,13 @@ workflow bwaMem {
         bamMerge_timeout: "Hours before task timeout"
         bamMerge_modules: "Required environment modules"
         bamMerge_jobMemory: "Memory allocated indexing job"
-        runBwaMem_timeout: "Hours before task timeout"
-        runBwaMem_jobMemory: "Memory allocated for this job"
-        runBwaMem_threads: "Requested CPU threads"
-        runBwaMem_addParam: "Additional BWA parameters"
-        runBwaMem_readGroups: "The readgroup information to be injected into the bam header"
+        runBwamem2_timeout: "Hours before task timeout"
+        runBwamem2_jobMemory: "Memory allocated for this job"
+        runBwamem2_threads: "Requested CPU threads"
+        runBwamem2_addParam: "Additional BWA parameters"
+        runBwamem2_readGroups: "The readgroup information to be injected into the bam header"
+        adapterTrimming_adapterTrim: "If false, will not preform adapter trimming"
+        adapterTrimming_polyGTrim: "Number to pass to --nexseq-trim. Will address polyG trimming"
         adapterTrimming_timeout: "Hours before task timeout"
         adapterTrimming_jobMemory: "Memory allocated for this job"
         adapterTrimming_addParam: "Additional cutadapt parameters"
@@ -101,20 +105,23 @@ workflow bwaMem {
         numReads: "Number of reads"
     }
 
-    Map[String,String] bwaMem_modules_by_genome = { 
-    "hg19": "samtools/1.9 bwa/0.7.17 hg19-bwa-index/0.7.17",
-    "hg38": "samtools/1.9 bwa/0.7.17 hg38-bwa-index-with-alt/0.7.17",
-    "mm10": "samtools/1.9 bwa/0.7.17 mm10-bwa-index/0.7.17"}
+    Map[String,String] bwamem2_modules_by_genome = { 
+    "hg19": "samtools/1.9 bwa-mem2/2.2.1 hg19-bwamem2-index/2.2.1",
+    "hg38": "samtools/1.9 bwa-mem2/2.2.1 hg38-bwamem2-index-with-alt/2.2.1",
+    "hg19_noAlt": "samtools/1.9 bwa-mem2/2.2.1 hg19-bwamem2-index-noalt/2.2.1",
+    "hg38_noAlt": "samtools/1.9 bwa-mem2/2.2.1 hg38-bwamem2-index-noalt/2.2.1"
+    }
 
-    Map[String,String] bwaMemRef_by_genome = { 
-    "hg19": "$HG19_BWA_INDEX_ROOT/hg19_random.fa",
-    "hg38": "$HG38_BWA_INDEX_WITH_ALT_ROOT/hg38_random.fa",
-    "mm10_bwaMemRef": "$MM10_BWA_INDEX_ROOT/mm10.fa"
+    Map[String,String] bwamem2Ref_by_genome = { 
+    "hg19": "$HG19_BWAMEM2_INDEX_ROOT/hg19_index",
+    "hg38": "$HG38_BWAMEM2_INDEX_WITH_ALT_ROOT/hg38_random.fa",
+    "hg19_noAlt": "$HG19_BWAMEM2_INDEX_NOALT_ROOT/hg19_noAlt.fa",
+    "hg38_noAlt": "$HG38_BWAMEM2_INDEX_NOALT_ROOT/hg38_noAlt.fa"
     }
 
 
-    String bwaMem_modules = bwaMem_modules_by_genome [ reference ]
-    String bwaMem_ref = bwaMemRef_by_genome [ reference ]
+    String bwamem2_modules = bwamem2_modules_by_genome [ reference ]
+    String bwamem2_ref = bwamem2Ref_by_genome [ reference ]
 
     if (numChunk > 1) {
         call countChunkSize {
@@ -183,6 +190,8 @@ workflow bwaMem {
         if (doTrim) {
             call adapterTrimming { 
                 input:
+                adapterTrim = adapterTrimming_adapterTrim,
+                polyGTrim = adapterTrimming_polyGTrim,
                 timeout = adapterTrimming_timeout,
                 jobMemory = adapterTrimming_jobMemory,
                 addParam = adapterTrimming_addParam,
@@ -199,17 +208,17 @@ workflow bwaMem {
         }
 
 
-        call runBwaMem  { 
+        call runBwamem2 { 
                 input: 
-                timeout = runBwaMem_timeout,
-                jobMemory = runBwaMem_jobMemory,
-                threads = runBwaMem_threads,
-                addParam = runBwaMem_addParam,
-                readGroups = runBwaMem_readGroups,
+                timeout = runBwamem2_timeout,
+                jobMemory = runBwamem2_jobMemory,
+                threads = runBwamem2_threads,
+                addParam = runBwamem2_addParam,
+                readGroups = runBwamem2_readGroups,
                 read1s = select_first([adapterTrimming.resultR1, extractUMIs.fastqR1, p.left]),
                 read2s = if (defined(fastqR2)) then select_first([adapterTrimming.resultR2, extractUMIs.fastqR2, p.right]) else fastqR2,
-                modules = bwaMem_modules,
-                bwaRef = bwaMem_ref
+                modules = bwamem2_modules,
+                bwa2Ref = bwamem2_ref
         }    
     }
 
@@ -218,7 +227,7 @@ workflow bwaMem {
         timeout = bamMerge_timeout,
         modules = bamMerge_modules,
         jobMemory = bamMerge_jobMemory,
-        bams = runBwaMem.outputBam,
+        bams = runBwamem2.outputBam,
         outputFileNamePrefix = outputFileNamePrefix
     }
 
@@ -245,11 +254,11 @@ workflow bwaMem {
     meta {
         author: "Xuemei Luo"
         email: "xuemei.luo@oicr.on.ca"
-        description: "This workflow aligns sequence data provided as fastq files against a genomic reference using bwa (burrows-wheeler-aligner).  Prior to alignment, there are options to remove 5' umi sequence and to trim off 3' sequencing adapter. Readgroup information to be injected into the bam header needs to be provided.  The workflow can also split the input data into a requested number of chunks, align each separately then merge the separate alignments into a single bam file.  This decreases the workflow run time.  Optional bwa mem parameters can be provided to the workflow."
+        description: "This workflow aligns sequence data provided as fastq files against a genomic reference using bwamem2.  Prior to alignment, there are options to remove 5' umi sequence and to trim off 3' sequencing adapter. Readgroup information to be injected into the bam header needs to be provided.  The workflow can also split the input data into a requested number of chunks, align each separately then merge the separate alignments into a single bam file.  This decreases the workflow run time.  Optional bwa mem parameters can be provided to the workflow."
         dependencies: [
         {
-            name: "bwa/0.7.17",
-            url: "https://github.com/lh3/bwa/archive/0.7.17.tar.gz"
+            name: "bwa-mem2/2.2.1",
+            url: "https://github.com/bwa-mem2/bwa-mem2/releases/download/v2.2.1/bwa-mem2-2.2.1_x64-linux.tar.bz2"
         },
         {
             name: "samtools/1.9",
@@ -276,27 +285,41 @@ workflow bwaMem {
             url: "https://www.rust-lang.org/tools/install"
         },
         { 
-          name: "gsi software modules : samtools/1.9 bwa/0.7.17",
+          name: "gsi software modules : samtools/1.9 bwa-mem2/2.2.1",
           url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
         },
         { 
-          name: "gsi hg38 modules : hg38-bwa-index-with-alt/0.7.17",
+          name: "gsi hg38 modules : hg38-bwamem2-index-with-alt/2.2.1",
           url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
         },
         {
-          name: "gsi hg19 modules : hg19-bwa-index/0.7.17",
-          url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
-        },
-        {
-          name: "gsi mm10 modules :mm10-bwa-index/0.7.17",
+          name: "gsi hg19 modules : hg19-bwamem2-index/2.2.1",
           url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
         }
       ]
+      output_meta: {
+       bwamem2Bam: {
+          description: "Output Alignment BAM file",
+          vidarr_label: "bwamem2Bam"
+       },
+       bwamem2Index: {
+          description: "Index of the Output Alignment file, BAI",
+          vidarr_label: "bwamem2Index"
+       },
+       log: {
+          description: "Optional log file",
+          vidarr_label: "log"
+       },
+       cutAdaptAllLogs: {
+          description: "Optional log file for cutAdapt",
+          vidarr_label: "cutAdaptAllLogs"
+       } 
+      }
     }
 
     output {
-        File bwaMemBam = bamMerge.outputMergedBam
-        File bwaMemIndex = indexBam.outputBai
+        File bwamem2Bam = bamMerge.outputMergedBam
+        File bwamem2Index = indexBam.outputBai
         File? log = adapterTrimmingLog.summaryLog
         File? cutAdaptAllLogs = adapterTrimmingLog.allLogs
     }
@@ -344,9 +367,9 @@ task countChunkSize{
     }
 
     meta {
-        output_meta: {
-            chunkSize: "output number of lines per chunk"
-        }
+    output_meta: {
+    chunkSize: "output number of lines per chunk"
+    }
     }    
    
 }
@@ -476,7 +499,9 @@ task adapterTrimming {
         String adapter2 = "AGATCGGAAGAGCGTCGTGTAGGGAAAGAGTGT" 
         String? addParam
         Int jobMemory = 16
-        Int timeout = 48  
+        Int timeout = 48
+        Int? polyGTrim
+        Boolean adapterTrim = true  
     }
     
     parameter_meta {
@@ -492,6 +517,8 @@ task adapterTrimming {
         addParam: "Additional cutadapt parameters"
         jobMemory: "Memory allocated for this job"
         timeout: "Hours before task timeout"
+        polyGTrim: "Number to pass to --nexseq-trim. Will address polyG trimming"
+        adapterTrim: "If false, will not preform adapter trimming"
     }
    
     Array[File] inputs = select_all([fastqR1,fastqR2])
@@ -504,13 +531,15 @@ task adapterTrimming {
 
         cutadapt -q ~{trimMinQuality} \
                 -m ~{trimMinLength} \
-                -a ~{adapter1} \
+                ~{if (adapterTrim) then "-a ~{adapter1} " else "" } \
                 -o ~{resultFastqR1} \
-                ~{if (defined(fastqR2)) then "-A ~{adapter2} -p ~{resultFastqR2} " else ""} \
+                ~{if (defined(fastqR2)) then (if (adapterTrim) then "-A ~{adapter2} -p ~{resultFastqR2} " else "-p ~{resultFastqR2} ")  else ""} \
                 ~{if (doUMItrim) then "-u ~{umiLength} -U ~{umiLength} " else ""} \
+                ~{if (defined(polyGTrim)) then "--nextseq-trim=~{polyGTrim} " else ""} \
                 ~{addParam} \
                 ~{fastqR1} \
                 ~{fastqR2} > ~{resultLog}
+
 
     >>>
     
@@ -536,13 +565,13 @@ task adapterTrimming {
 }
 
 
-task runBwaMem {
+task runBwamem2 {
     input {
         File read1s
         File? read2s
         String readGroups
         String modules
-        String bwaRef
+        String bwa2Ref
         String? addParam
         Int threads = 8
         Int jobMemory = 32
@@ -553,7 +582,7 @@ task runBwaMem {
         read1s: "Fastq file for read 1"
         read2s: "Fastq file for read 2"
         readGroups: "The readgroup information to be injected into the bam header"
-        bwaRef: "The reference genome to align the sample with by BWA"
+        bwa2Ref: "The reference genome to align the sample with by bwa-mem2"
         modules: "Required environment modules"
         addParam: "Additional BWA parameters"
         threads: "Requested CPU threads"
@@ -567,10 +596,10 @@ task runBwaMem {
     command <<<
         set -euo pipefail
         mkdir -p ~{tmpDir}
-        bwa mem -M \
+        bwa-mem2 mem -M \
             -t ~{threads} ~{addParam}  \
             -R  ~{readGroups} \
-            ~{bwaRef} \
+            ~{bwa2Ref} \
             ~{read1s} \
             ~{read2s} \
         | \
