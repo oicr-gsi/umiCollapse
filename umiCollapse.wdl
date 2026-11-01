@@ -19,7 +19,6 @@ workflow umiCollapse {
         String reference
         Boolean doBamQC = false
         Boolean provisionBam = true
-        String mode
     }
 
     parameter_meta {
@@ -28,10 +27,9 @@ workflow umiCollapse {
         fastqInputs: "Array of fastq structs containing reads and readgroups"
         pattern1: "UMI pattern 1"
         pattern2: "UMI pattern 2"
-        reference: "Name and version of reference genome"
+        reference: "Name and version of reference genome (hg19, hg38, hg38_noAlt; hg19_noAlt is not supported when doBamQC is true)"
         doBamQC: "Enable/disable bamQC process"
         provisionBam: "Enable/disable provision out umi deduplicated bam file"
-        mode: "running mode for the workflow, only allow value 'lane_level' and 'call_ready'"
     }
 
     meta {
@@ -60,11 +58,11 @@ workflow umiCollapse {
                 url: "https://www.python.org/downloads/"
             },
             { 
-                name: "gsi software modules : samtools/1.9 bwa-mem2/1.1.2",
+                name: "gsi software modules : samtools/1.9 bwa-mem2/2.2.1",
                 url: "https://gitlab.oicr.on.ca/ResearchIT/modulator"
             },
             {
-                name: "bam-qc-metrics/0.2.5",
+                name: "bam-qc-metrics/0.2.8",
                 url: "https://github.com/oicr-gsi/bam-qc-metrics.git"
             },
             {
@@ -72,7 +70,7 @@ workflow umiCollapse {
                 url: "https://github.com/oicr-gsi/bwamem2"
             },
             {
-                name: "bamQC 5.1.3",
+                name: "bamQC 5.3.7",
                 url: "https://github.com/oicr-gsi/bamQC"
             }
 
@@ -153,7 +151,7 @@ workflow umiCollapse {
             input:
                 inputGroups = [{"bam": mergeLibrary.mergedBam, "bamIndex": mergeLibrary.mergedBai}],
                 outputFileNamePrefix = "~{outputPrefix}.preDedup",
-                mode = mode
+                reference = reference
           }
     }
 
@@ -181,7 +179,7 @@ workflow umiCollapse {
             input:
                 inputGroups = [{"bam": bamMerge.mergedBam, "bamIndex": bamMerge.mergedBai}],
                 outputFileNamePrefix = "~{outputPrefix}.postDedup",
-                mode = mode
+                reference = reference
         }
     }
 
